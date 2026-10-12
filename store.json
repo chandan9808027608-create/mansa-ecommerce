@@ -1,0 +1,628 @@
+{
+  "featured": "prn2",
+  "heroImage": "",
+  "products": [
+    {
+      "id": "cam2",
+      "name": "Outdoor Bullet Camera 5MP",
+      "category": "Cameras",
+      "price": 6900,
+      "description": "Weatherproof outdoor camera with wide-angle lens.",
+      "image": "images/cam2.svg",
+      "specs": [
+        [
+          "Resolution",
+          "5MP"
+        ],
+        [
+          "IR range",
+          "30 m"
+        ],
+        [
+          "Rating",
+          "IP66"
+        ]
+      ]
+    },
+    {
+      "id": "cam3",
+      "name": "CCTV Kit, 4 Cameras + DVR",
+      "category": "Cameras",
+      "price": 32500,
+      "description": "Complete kit with 1TB storage, cabling and power supplies.",
+      "was": 36000,
+      "badge": "Sale",
+      "image": "images/cam3.svg",
+      "specs": [
+        [
+          "Cameras",
+          "4"
+        ],
+        [
+          "Storage",
+          "1 TB"
+        ],
+        [
+          "Resolution",
+          "1080p"
+        ]
+      ]
+    },
+    {
+      "id": "cam1",
+      "name": "IP Security Camera 2MP",
+      "category": "Cameras",
+      "price": 4800,
+      "description": "1080p indoor camera with night vision and motion alerts.",
+      "badge": "Best seller",
+      "image": "images/cam1.svg",
+      "specs": [
+        [
+          "Resolution",
+          "1080p"
+        ],
+        [
+          "Night vision",
+          "10 m"
+        ],
+        [
+          "Connection",
+          "Wi-Fi"
+        ]
+      ]
+    },
+    {
+      "id": "cam4",
+      "name": "Full HD Webcam",
+      "category": "Cameras",
+      "price": 3200,
+      "description": "1080p webcam with built-in microphone. Plug and play.",
+      "badge": "New",
+      "image": "images/cam4.svg",
+      "specs": [
+        [
+          "Resolution",
+          "1080p"
+        ],
+        [
+          "Mic",
+          "Built-in"
+        ],
+        [
+          "Connection",
+          "USB"
+        ]
+      ]
+    },
+    {
+      "id": "prn1",
+      "name": "Laser Printer, Mono",
+      "category": "Printers",
+      "price": 18500,
+      "description": "Fast A4 mono laser printing for busy offices.",
+      "badge": "Best seller",
+      "image": "images/prn1.svg",
+      "specs": [
+        [
+          "Speed",
+          "30 ppm"
+        ],
+        [
+          "Size",
+          "A4"
+        ],
+        [
+          "Connection",
+          "USB, Ethernet"
+        ]
+      ]
+    },
+    {
+      "id": "prn2",
+      "name": "Inkjet All-in-One",
+      "category": "Printers",
+      "price": 14900,
+      "description": "Print, scan and copy with refillable ink tanks.",
+      "image": "images/prn2.svg",
+      "specs": [
+        [
+          "Functions",
+          "Print, scan, copy"
+        ],
+        [
+          "Ink",
+          "Refillable tank"
+        ],
+        [
+          "Connection",
+          "USB, Wi-Fi"
+        ]
+      ]
+    },
+    {
+      "id": "prn3",
+      "name": "Thermal Receipt Printer",
+      "category": "Printers",
+      "price": 12800,
+      "description": "80mm receipt printer with auto-cutter for shops and counters.",
+      "image": "images/prn3.svg",
+      "specs": [
+        [
+          "Width",
+          "80 mm"
+        ],
+        [
+          "Connection",
+          "USB, LAN"
+        ],
+        [
+          "Cutter",
+          "Auto"
+        ]
+      ]
+    },
+    {
+      "id": "prn4",
+      "name": "Colour Laser Printer",
+      "category": "Printers",
+      "price": 41000,
+      "description": "A4 colour laser with duplex printing and Wi-Fi.",
+      "badge": "New",
+      "image": "images/prn4.svg",
+      "specs": [
+        [
+          "Size",
+          "A4"
+        ],
+        [
+          "Duplex",
+          "Yes"
+        ],
+        [
+          "Connection",
+          "USB, Wi-Fi, Ethernet"
+        ]
+      ]
+    },
+    {
+      "id": "ton1",
+      "name": "Black Toner Cartridge",
+      "category": "Toner & Ink",
+      "price": 4200,
+      "description": "High-yield cartridge for common mono laser printers.",
+      "image": "images/ton1.svg",
+      "specs": [
+        [
+          "Colour",
+          "Black"
+        ],
+        [
+          "Yield",
+          "High"
+        ],
+        [
+          "Type",
+          "Laser"
+        ]
+      ]
+    },
+    {
+      "id": "ton2",
+      "name": "Colour Toner Set (CMYK)",
+      "category": "Toner & Ink",
+      "price": 16800,
+      "description": "Four-colour toner set for colour laser printers.",
+      "image": "images/ton2.svg",
+      "specs": [
+        [
+          "Colours",
+          "C, M, Y, K"
+        ],
+        [
+          "Type",
+          "Laser"
+        ]
+      ]
+    },
+    {
+      "id": "ton3",
+      "name": "Ink Bottle Set (4 colours)",
+      "category": "Toner & Ink",
+      "price": 2100,
+      "description": "Refill ink for tank-type inkjet printers.",
+      "badge": "Best seller",
+      "image": "images/ton3.svg",
+      "specs": [
+        [
+          "Colours",
+          "4"
+        ],
+        [
+          "Type",
+          "Tank inkjet"
+        ]
+      ]
+    },
+    {
+      "id": "ton4",
+      "name": "Drum Unit",
+      "category": "Toner & Ink",
+      "price": 7500,
+      "description": "Replacement imaging drum with long service life.",
+      "image": "images/ton4.svg",
+      "specs": [
+        [
+          "Type",
+          "Laser drum"
+        ]
+      ]
+    },
+    {
+      "id": "hw1",
+      "name": "SSD 512GB SATA",
+      "category": "Computer Hardware",
+      "price": 5600,
+      "description": "2.5 inch solid state drive for faster boot and load times.",
+      "image": "images/hw1.svg",
+      "specs": [
+        [
+          "Capacity",
+          "512 GB"
+        ],
+        [
+          "Read speed",
+          "550 MB/s"
+        ],
+        [
+          "Interface",
+          "SATA III"
+        ]
+      ]
+    },
+    {
+      "id": "hw2",
+      "name": "DDR4 RAM 8GB",
+      "category": "Computer Hardware",
+      "price": 3400,
+      "description": "3200 MHz desktop memory module.",
+      "image": "images/hw2.svg",
+      "specs": [
+        [
+          "Capacity",
+          "8 GB"
+        ],
+        [
+          "Speed",
+          "3200 MHz"
+        ],
+        [
+          "Type",
+          "DDR4"
+        ]
+      ]
+    },
+    {
+      "id": "hw3",
+      "name": "27\" QHD Monitor",
+      "category": "Computer Hardware",
+      "price": 29500,
+      "description": "IPS panel with thin bezels, HDMI and DisplayPort.",
+      "was": 32000,
+      "badge": "Sale",
+      "image": "images/hw3.svg",
+      "specs": [
+        [
+          "Size",
+          "27 inch"
+        ],
+        [
+          "Resolution",
+          "2560 x 1440"
+        ],
+        [
+          "Panel",
+          "IPS"
+        ]
+      ]
+    },
+    {
+      "id": "hw4",
+      "name": "Wireless Keyboard & Mouse",
+      "category": "Computer Hardware",
+      "price": 2900,
+      "description": "Compact combo with a 2.4GHz USB receiver.",
+      "image": "images/hw4.svg",
+      "specs": [
+        [
+          "Connection",
+          "2.4 GHz"
+        ],
+        [
+          "Layout",
+          "Full size"
+        ]
+      ]
+    },
+    {
+      "id": "hw5",
+      "name": "Wi-Fi 6 Router",
+      "category": "Computer Hardware",
+      "price": 7600,
+      "description": "Dual-band router with WPA3 security and easy setup.",
+      "badge": "New",
+      "image": "images/hw5.svg",
+      "specs": [
+        [
+          "Standard",
+          "Wi-Fi 6"
+        ],
+        [
+          "Bands",
+          "Dual"
+        ],
+        [
+          "Security",
+          "WPA3"
+        ]
+      ]
+    },
+    {
+      "id": "hw6",
+      "name": "UPS 650VA",
+      "category": "Computer Hardware",
+      "price": 5900,
+      "description": "Battery backup for desktops and networking gear.",
+      "image": "images/hw6.svg",
+      "specs": [
+        [
+          "Capacity",
+          "650 VA"
+        ],
+        [
+          "Outlets",
+          "3"
+        ]
+      ]
+    },
+    {
+      "id": "hik-dome",
+      "name": "Hikvision DS-2CD2143G0-I 4MP IP Dome Camera",
+      "category": "Cameras",
+      "brand": "Hikvision",
+      "price": 14500,
+      "description": "4MP network dome with 2.8 mm lens, IR night vision and H.265+ compression.",
+      "image": "images/hik-dome.svg",
+      "specs": [
+        [
+          "Resolution",
+          "4MP"
+        ],
+        [
+          "IR range",
+          "30 m"
+        ],
+        [
+          "Rating",
+          "IP67 / IK10"
+        ],
+        [
+          "Compression",
+          "H.265+"
+        ]
+      ]
+    },
+    {
+      "id": "hik-bullet",
+      "name": "Hikvision DS-2CE16D0T-IRPF 2MP Turbo HD Bullet",
+      "category": "Cameras",
+      "brand": "Hikvision",
+      "price": 3900,
+      "description": "1080p analog HD bullet camera for outdoor use, works with Turbo HD DVRs.",
+      "image": "images/hik-bullet.jpg",
+      "specs": [
+        [
+          "Resolution",
+          "2MP / 1080p"
+        ],
+        [
+          "IR range",
+          "20 m"
+        ],
+        [
+          "Rating",
+          "IP66"
+        ],
+        [
+          "Output",
+          "Turbo HD / AHD / CVI / CVBS"
+        ]
+      ]
+    },
+    {
+      "id": "hik-dvr",
+      "name": "Hikvision DS-7104HGHI-K1 4-Channel Turbo HD DVR",
+      "category": "Cameras",
+      "brand": "Hikvision",
+      "price": 9800,
+      "description": "4-channel DVR for Turbo HD, AHD and analog cameras with H.265 recording.",
+      "image": "images/hik-dvr.svg",
+      "specs": [
+        [
+          "Channels",
+          "4"
+        ],
+        [
+          "Max resolution",
+          "1080p"
+        ],
+        [
+          "Storage",
+          "1 SATA bay"
+        ],
+        [
+          "Compression",
+          "H.265"
+        ]
+      ]
+    },
+    {
+      "id": "tia-bullet",
+      "name": "Tiandy TC-C32GN 2MP IP Bullet Camera",
+      "category": "Cameras",
+      "brand": "Tiandy",
+      "price": 6200,
+      "description": "2MP network bullet camera with IR night vision, weatherproof for outdoor installation.",
+      "image": "images/tia-bullet.jpg",
+      "specs": [
+        [
+          "Resolution",
+          "2MP"
+        ],
+        [
+          "IR range",
+          "50 m"
+        ],
+        [
+          "Rating",
+          "IP67"
+        ],
+        [
+          "Compression",
+          "H.265"
+        ]
+      ]
+    },
+    {
+      "id": "tia-dome",
+      "name": "Tiandy 2MP IP Dome Camera",
+      "category": "Cameras",
+      "brand": "Tiandy",
+      "price": 5600,
+      "description": "2MP network dome camera for indoor and covered areas, with night vision.",
+      "image": "images/tia-dome.svg",
+      "specs": [
+        [
+          "Resolution",
+          "2MP"
+        ],
+        [
+          "IR range",
+          "30 m"
+        ],
+        [
+          "Compression",
+          "H.265"
+        ],
+        [
+          "Power",
+          "12V DC / PoE"
+        ]
+      ]
+    },
+    {
+      "id": "bro-hll2321d",
+      "name": "Brother HL-L2321D Mono Laser Printer",
+      "category": "Printers",
+      "brand": "Brother",
+      "price": 19800,
+      "description": "Compact mono laser printer with automatic double-sided printing.",
+      "image": "images/brother-laser.jpg",
+      "specs": [
+        [
+          "Type",
+          "Mono laser, print only"
+        ],
+        [
+          "Speed",
+          "30 ppm"
+        ],
+        [
+          "Duplex",
+          "Automatic"
+        ],
+        [
+          "Interface",
+          "USB 2.0"
+        ]
+      ]
+    },
+    {
+      "id": "bro-dcpl2520d",
+      "name": "Brother DCP-L2520D Mono Laser Multifunction",
+      "category": "Printers",
+      "brand": "Brother",
+      "price": 26500,
+      "description": "Print, copy and scan in one mono laser unit with automatic duplex printing.",
+      "image": "images/brother-laser.jpg",
+      "specs": [
+        [
+          "Functions",
+          "Print / Copy / Scan"
+        ],
+        [
+          "Speed",
+          "30 ppm"
+        ],
+        [
+          "Duplex",
+          "Automatic"
+        ],
+        [
+          "Interface",
+          "USB 2.0"
+        ]
+      ]
+    },
+    {
+      "id": "bro-dcpt520w",
+      "name": "Brother DCP-T520W Ink Tank Printer",
+      "category": "Printers",
+      "brand": "Brother",
+      "price": 23500,
+      "description": "Refillable ink tank all-in-one with Wi-Fi for low-cost colour printing, copying and scanning.",
+      "image": "images/prn2.svg",
+      "specs": [
+        [
+          "Functions",
+          "Print / Copy / Scan"
+        ],
+        [
+          "Ink system",
+          "Refillable tank"
+        ],
+        [
+          "Connectivity",
+          "Wi-Fi, USB"
+        ],
+        [
+          "Type",
+          "Colour inkjet"
+        ]
+      ]
+    },
+    {
+      "id": "bro-tn2380",
+      "name": "Brother TN-2380 Black Toner Cartridge",
+      "category": "Toner & Ink",
+      "brand": "Brother",
+      "price": 5800,
+      "description": "High-yield black toner for Brother HL-L2320/L2360 and DCP-L2520/L2540 series.",
+      "image": "images/ton1.svg",
+      "specs": [
+        [
+          "Colour",
+          "Black"
+        ],
+        [
+          "Type",
+          "High yield"
+        ],
+        [
+          "Compatible",
+          "HL-L2321D, DCP-L2520D"
+        ]
+      ]
+    }
+  ],
+  "updatedAt": 1791796195
+}

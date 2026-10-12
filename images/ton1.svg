@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+<defs>
+  <radialGradient id="glow" cx="50%" cy="46%" r="55%"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <linearGradient id="body" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dcdcd6"/></linearGradient>
+  <linearGradient id="bodyH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f3f3ef"/><stop offset=".5" stop-color="#ffffff"/><stop offset="1" stop-color="#d6d6d0"/></linearGradient>
+  <linearGradient id="dark" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#47474c"/><stop offset="1" stop-color="#19191c"/></linearGradient>
+  <linearGradient id="darkH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2a2a2e"/><stop offset=".5" stop-color="#4a4a50"/><stop offset="1" stop-color="#1c1c1f"/></linearGradient>
+  <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f1f1f3"/><stop offset=".5" stop-color="#c4c4ca"/><stop offset="1" stop-color="#9c9ca4"/></linearGradient>
+  <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5b6c91"/><stop offset=".5" stop-color="#1b2234"/><stop offset="1" stop-color="#0a0d16"/></linearGradient>
+  <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7aa2ff"/><stop offset=".55" stop-color="#b58cff"/><stop offset="1" stop-color="#ffb08a"/></linearGradient>
+  <linearGradient id="pcb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f8f66"/><stop offset="1" stop-color="#1c5e43"/></linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7dd8a"/><stop offset="1" stop-color="#c9a13c"/></linearGradient>
+  <linearGradient id="drum" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9ad1bd"/><stop offset=".5" stop-color="#4f9a83"/><stop offset="1" stop-color="#2d6957"/></linearGradient>
+  <filter id="blur" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+</defs>
+<circle cx="300" cy="290" r="250" fill="url(#glow)"/><ellipse cx="300" cy="470" rx="190" ry="16" fill="#000" opacity=".16" filter="url(#blur)"/>
+  <path d="M170 262 h260 a30 30 0 0 1 30 30 v28 h-320 v-28 a30 30 0 0 1 30 -30z" fill="#2a2a2e"/>
+  <rect x="120" y="296" width="360" height="128" rx="30" fill="url(#dark)"/>
+  <rect x="120" y="296" width="360" height="26" rx="13" fill="#5a5a60"/>
+  <rect x="190" y="338" width="220" height="64" rx="10" fill="#fff"/>
+  <rect x="204" y="352" width="26" height="36" rx="4" fill="#111"/>
+  <path d="M246 358h140M246 376h96" stroke="#bdbdb5" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="450" cy="360" r="20" fill="url(#metal)"/><circle cx="450" cy="360" r="8" fill="#6b6b72"/>
+</svg>

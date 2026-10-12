@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Mansa Admin</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { background: var(--soft); min-height: 100vh; }
+    [hidden] { display: none !important; }
+    .bar { background: #000; color: #fff; position: sticky; top: 0; z-index: 20; }
+    .bar .wrap { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .bar strong { font-size: 18px; letter-spacing: -0.03em; }
+    .tabs { display: flex; gap: 4px; }
+    .tabs button { background: none; border: 0; color: #a1a1a1; font-size: 14px; font-weight: 600; padding: 9px 16px; border-radius: 999px; cursor: pointer; transition: all .2s; }
+    .tabs button:hover { color: #fff; }
+    .tabs button.on { background: #fff; color: #000; }
+    .bar a, .bar .linkbtn { color: #bbb; font-size: 14px; margin-left: 16px; background: none; border: 0; cursor: pointer; }
+    .bar a:hover, .bar .linkbtn:hover { color: #fff; }
+
+    .login { max-width: 380px; margin: 96px auto; background: #fff; border-radius: 20px; padding: 32px; box-shadow: 0 20px 60px rgba(0,0,0,.08); }
+    .login h1 { font-size: 24px; letter-spacing: -0.03em; margin-bottom: 6px; }
+    .login p { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+
+    main.wrap { padding-top: 32px; padding-bottom: 80px; }
+    .box { background: #fff; border-radius: 20px; padding: 24px; margin-bottom: 20px; }
+    .box h2 { font-size: 18px; letter-spacing: -0.02em; }
+    .box .sub { color: var(--muted); font-size: 14px; margin: 4px 0 18px; }
+    .head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    .head h2 { font-size: 20px; }
+
+    label.f { display: block; font-size: 13px; font-weight: 500; margin-bottom: 14px; }
+    label.f small { color: var(--muted); font-weight: 400; }
+    input[type=text], input[type=password], input[type=number], input[type=date], input[type=search], textarea, select.f {
+      display: block; width: 100%; margin-top: 6px; border: 1px solid var(--line); border-radius: 12px;
+      padding: 10px 12px; background: #fff; height: auto; font-size: 15px; color: var(--ink);
+    }
+    textarea { resize: vertical; min-height: 84px; }
+    input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ink); box-shadow: 0 0 0 3px rgba(0,0,0,.06); }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .switch { display: flex; align-items: center; gap: 10px; font-weight: 600; margin-bottom: 18px; }
+    .switch input { width: 20px; height: 20px; accent-color: #000; }
+    .btn.sm { padding: 9px 16px; font-size: 14px; }
+    .btn.danger { background: #fff; color: #b91c1c; border-color: #f0c4c4; }
+    .status { font-size: 14px; margin-left: 12px; }
+    .status.ok { color: #15803d; } .status.err { color: #b91c1c; }
+    .err-text { color: #b91c1c; font-size: 14px; min-height: 20px; margin-top: 10px; }
+
+    /* products */
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; }
+    .toolbar input[type=search] { margin: 0; width: 240px; border-radius: 999px; }
+    .rows { display: grid; gap: 0; }
+    .row { display: grid; grid-template-columns: 56px 1fr 150px 130px auto; gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+    .row:first-child { border-top: 0; }
+    .row .th { width: 56px; height: 56px; border-radius: 12px; background: var(--soft); overflow: hidden; display: grid; place-items: center; color: var(--muted); font-size: 11px; }
+    .row .th img { width: 100%; height: 100%; object-fit: cover; }
+    .row .nm { font-weight: 600; font-size: 15px; line-height: 1.3; }
+    .row .nm small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; }
+    .row .pr s { color: var(--muted); font-size: 13px; margin-left: 6px; }
+    .tag { display: inline-block; font-size: 12px; font-weight: 600; background: var(--soft); border-radius: 999px; padding: 3px 10px; }
+    .tag.sale { background: #fde7dc; color: var(--sale); }
+    .acts { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+    .ib { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: #fff; cursor: pointer; font-size: 16px; line-height: 1; display: grid; place-items: center; transition: all .15s; }
+    .ib:hover { border-color: var(--ink); }
+    .ib.on { background: #000; color: #fff; border-color: #000; }
+    .ib:disabled { opacity: .3; cursor: default; }
+    .empty-note { color: var(--muted); text-align: center; padding: 40px 0; }
+
+    /* media */
+    .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+    .tile { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: #fff; position: relative; cursor: default; }
+    .tile .pic { aspect-ratio: 1; background: var(--soft); display: grid; place-items: center; }
+    .tile .pic img { width: 100%; height: 100%; object-fit: contain; }
+    .tile .cap { padding: 8px 10px; font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; gap: 6px; align-items: center; }
+    .tile .cap span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tile .use { position: absolute; top: 8px; left: 8px; background: #000; color: #fff; font-size: 11px; font-weight: 600; border-radius: 999px; padding: 2px 8px; }
+    .tile .del { position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; border-radius: 50%; border: 0; background: rgba(255,255,255,.92); cursor: pointer; font-size: 15px; }
+    .tile .del:hover { background: #fde7e7; color: #b91c1c; }
+    .picker .tile { cursor: pointer; transition: transform .15s, border-color .15s; }
+    .picker .tile:hover { transform: translateY(-2px); border-color: var(--ink); }
+
+    .imgbox { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+    .imgbox .prev { width: 120px; height: 120px; border-radius: 14px; background: var(--soft); border: 1px solid var(--line); overflow: hidden; display: grid; place-items: center; color: var(--muted); font-size: 12px; text-align: center; }
+    .imgbox .prev img { width: 100%; height: 100%; object-fit: contain; }
+    .imgbox .col { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+
+    /* dialogs */
+    dialog.adm { width: min(720px, 94vw); max-height: 92vh; overflow: auto; padding: 0; border-radius: 20px; }
+    dialog.adm form, dialog.adm .inner { padding: 26px; }
+    dialog.adm h2 { font-size: 22px; letter-spacing: -0.02em; margin-bottom: 18px; }
+    .dlg-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+    .preview-stage { background: rgba(0,0,0,.55); border-radius: 20px; padding: 40px 28px; }
+    .preview-stage .ad-card { max-width: 720px; margin: 0 auto; }
+    .ad-layout { display: grid; grid-template-columns: 420px 1fr; gap: 24px; align-items: start; }
+    .imgrow { display: flex; gap: 10px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+    .imgrow img { width: 56px; height: 56px; object-fit: cover; border-radius: 10px; background: var(--soft); }
+    .hint { font-size: 13px; color: var(--muted); margin-top: 12px; }
+    .toast { z-index: 100; }
+    @media (max-width: 900px) {
+      .row { grid-template-columns: 56px 1fr auto; }
+      .row .cat, .row .pr { display: none; }
+      .ad-layout { grid-template-columns: 1fr; }
+      .tabs button { padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bar"><div class="wrap">
+    <strong>Mansa Admin</strong>
+    <nav class="tabs" id="tabs" hidden>
+      <button data-tab="products" class="on">Products</button>
+      <button data-tab="images">Site images</button>
+      <button data-tab="ad">Ad popup</button>
+    </nav>
+    <span><a href="./" target="_blank" rel="noopener">View store ↗</a><button class="linkbtn" id="logout" hidden>Sign out</button></span>
+  </div></div>
+
+  <!-- Sign in -->
+  <form class="login" id="login">
+    <h1>Sign in</h1>
+    <p>Enter the admin password to manage the store.</p>
+    <label class="f">Password <input type="password" id="password" autocomplete="current-password" required autofocus></label>
+    <button class="btn block" type="submit">Sign in</button>
+    <div class="err-text" id="login-err"></div>
+  </form>
+
+  <main class="wrap" id="editor" hidden>
+    <!-- Products -->
+    <section id="tab-products">
+      <div class="box">
+        <div class="head">
+          <h2>Products <span class="tag" id="prod-count"></span></h2>
+          <div class="toolbar">
+            <input type="search" id="prod-search" placeholder="Search products">
+            <button class="btn sm" id="add-product">+ Add product</button>
+          </div>
+        </div>
+        <div class="rows" id="prod-rows"></div>
+      </div>
+      <p class="hint">Changes are saved to the store immediately. The star marks the product featured in the hero. The order here is the order shown in the store.</p>
+    </section>
+
+    <!-- Site images -->
+    <section id="tab-images" hidden>
+      <div class="box">
+        <h2>Hero</h2>
+        <p class="sub">The big product at the top of the home page.</p>
+        <div class="two">
+          <label class="f">Featured product <select class="f" id="hero-product"></select></label>
+          <div>
+            <div style="font-size:13px;font-weight:500">Hero image <small style="color:var(--muted);font-weight:400">(optional override)</small></div>
+            <div class="imgbox" style="margin-top:6px">
+              <div class="prev" id="hero-prev">Uses the product's image</div>
+              <div class="col">
+                <button class="btn sm ghost" id="hero-upload">Upload…</button>
+                <button class="btn sm ghost" id="hero-pick">Choose from library</button>
+                <button class="btn sm ghost" id="hero-clear">Use product image</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:6px"><button class="btn" id="hero-save">Save hero</button><span class="status" id="hero-status" role="status"></span></div>
+      </div>
+
+      <div class="box">
+        <div class="head">
+          <div><h2>Image library</h2><p class="sub" style="margin:4px 0 0">Everything available to use on the site. Uploads can be deleted; built-in images can't.</p></div>
+          <button class="btn sm" id="lib-upload">+ Upload images</button>
+        </div>
+        <div class="media-grid" id="lib-grid"></div>
+      </div>
+    </section>
+
+    <!-- Ad popup -->
+    <section id="tab-ad" hidden>
+      <div class="ad-layout">
+        <form class="box" id="ad-form">
+          <h2>Store ad popup</h2>
+          <p class="sub">Shown to visitors as soon as the store opens.</p>
+          <label class="switch"><input type="checkbox" name="enabled"> Show the ad to visitors</label>
+          <label class="f">Badge <small>(small label, optional)</small><input type="text" name="badge" maxlength="30" placeholder="e.g. New offer"></label>
+          <label class="f">Headline<input type="text" name="title" maxlength="90" required placeholder="e.g. 10% off all printers"></label>
+          <label class="f">Message <small>(optional)</small><textarea name="text" maxlength="300" placeholder="A short line of detail"></textarea></label>
+          <div class="two">
+            <label class="f">Button text <input type="text" name="buttonLabel" maxlength="30" placeholder="Shop now"></label>
+            <label class="f">Button link <input type="text" name="buttonLink" placeholder="#shop or https://…"></label>
+          </div>
+          <div class="f" style="font-size:13px;font-weight:500">Image <small style="color:var(--muted);font-weight:400">(optional)</small>
+            <div class="imgrow">
+              <img id="ad-thumb" alt="" hidden>
+              <button type="button" class="btn sm ghost" id="ad-upload">Upload…</button>
+              <button type="button" class="btn sm ghost" id="ad-pick">Library</button>
+              <button type="button" class="btn sm ghost" id="ad-clear" hidden>Remove</button>
+            </div>
+          </div>
+          <div class="two" style="margin-top:14px">
+            <label class="f">Style <select class="f" name="theme"><option value="light">Light</option><option value="dark">Dark</option></select></label>
+            <label class="f">Show
+              <select class="f" name="frequency">
+                <option value="session">Once per visit</option><option value="day">Once per day</option><option value="visit">Every page load</option>
+              </select></label>
+          </div>
+          <div class="two">
+            <label class="f">Start date <small>(optional)</small><input type="date" name="startDate"></label>
+            <label class="f">End date <small>(optional)</small><input type="date" name="endDate"></label>
+          </div>
+          <button class="btn" type="submit" id="ad-save">Save changes</button><span class="status" id="ad-status" role="status"></span>
+        </form>
+        <div class="box">
+          <h2>Preview</h2>
+          <div class="preview-stage" style="margin-top:14px"><div id="ad-preview"></div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Product editor -->
+  <dialog class="adm" id="prod-dlg">
+    <form id="prod-form">
+      <h2 id="prod-title">Add product</h2>
+      <label class="f">Name <input type="text" name="name" maxlength="120" required placeholder="e.g. Wireless Keyboard"></label>
+      <label class="f">Brand <input type="text" name="brand" list="brand-list" maxlength="40" placeholder="e.g. HP, Hikvision"></label>
+      <datalist id="brand-list"></datalist>
+      <div class="two">
+        <label class="f">Category <input type="text" name="category" list="cat-list" maxlength="40" required placeholder="Choose or type a new one"></label>
+        <label class="f">Badge
+          <select class="f" name="badge"><option value="">None</option><option>New</option><option>Best seller</option><option>Sale</option></select></label>
+      </div>
+      <datalist id="cat-list"></datalist>
+      <div class="two">
+        <label class="f">Price (NPR) <input type="number" name="price" min="0" step="1" required></label>
+        <label class="f">Old price <small>(optional, shows as struck through)</small><input type="number" name="was" min="0" step="1"></label>
+      </div>
+      <label class="f">Description <textarea name="description" maxlength="400" placeholder="One or two sentences"></textarea></label>
+      <label class="f">Specs <small>(one per line, as “Label: value”)</small>
+        <textarea name="specs" rows="4" placeholder="Resolution: 1080p&#10;Night vision: 10 m"></textarea></label>
+      <div class="f" style="font-size:13px;font-weight:500">Image
+        <div class="imgbox" style="margin-top:6px">
+          <div class="prev" id="prod-prev">No image</div>
+          <div class="col">
+            <button type="button" class="btn sm ghost" id="prod-upload">Upload…</button>
+            <button type="button" class="btn sm ghost" id="prod-pick">Choose from library</button>
+            <button type="button" class="btn sm ghost" id="prod-clear">Remove</button>
+          </div>
+        </div>
+        <div class="two" style="margin-top:12px">
+          <label class="f">Size <small id="img-scale-val">100%</small>
+            <input type="range" name="imgScale" min="40" max="200" step="5" value="100"></label>
+          <label class="f">Fit
+            <select class="f" name="imgFit"><option value="">Default</option><option value="cover">Fill the frame</option><option value="contain">Show whole image</option></select></label>
+        </div>
+        <div class="two">
+          <label class="f">Rotate
+            <select class="f" name="imgRotate"><option value="0">0° (original)</option><option value="90">90° right</option><option value="180">180°</option><option value="270">90° left</option></select></label>
+          <label class="f" style="flex-direction:row;align-items:center;gap:8px;margin-top:22px"><input type="checkbox" name="imgFlip"> Flip horizontally</label>
+        </div>
+      </div>
+      <div class="dlg-actions">
+        <button type="button" class="btn ghost" id="prod-cancel">Cancel</button>
+        <button type="submit" class="btn" id="prod-save">Save product</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Image picker -->
+  <dialog class="adm" id="pick-dlg">
+    <div class="inner picker">
+      <div class="head"><h2 style="margin:0">Choose an image</h2>
+        <div class="toolbar"><button class="btn sm" id="pick-upload">+ Upload new</button><button class="btn sm ghost" id="pick-cancel">Cancel</button></div></div>
+      <div class="media-grid" id="pick-grid"></div>
+    </div>
+  </dialog>
+
+  <input type="file" id="file-input" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>window.MANSA_ADMIN = true;</script>
+  <script src="ad.js"></script>
+  <script>
+  (() => {
+    const $ = (id) => document.getElementById(id);
+    const el = (tag, props = {}, ...kids) => {
+      const n = Object.assign(document.createElement(tag), props);
+      kids.flat().forEach((k) => k != null && n.append(k));
+      return n;
+    };
+    const money = (n) => `NPR ${Number(n).toLocaleString("en-IN")}`;
+
+    let token = null;
+    try { token = sessionStorage.getItem("mansa-admin-token"); } catch {}
+    let store = { featured: "", heroImage: "", products: [] };
+    let media = [];
+    let ad = {};
+    let adImage = "";
+    let editing = null;      // product being edited (null = new)
+    let prodImage = "";
+
+    // ---------- API ----------
+    const call = async (path, body) => {
+      const r = await fetch(path, {
+        method: body === undefined ? "GET" : "POST",
+        headers: { ...(body !== undefined ? { "Content-Type": "application/json" } : {}), ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (r.status === 401 && token) signOut("Session expired. Please sign in again.");
+      if (!r.ok) throw new Error(data.error || "Request failed");
+      return data;
+    };
+
+    let toastTimer;
+    const toast = (msg) => {
+      const t = $("toast");
+      t.textContent = msg; t.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+    };
+
+    // ---------- session ----------
+    const show = (on) => {
+      $("login").hidden = on; $("editor").hidden = !on; $("tabs").hidden = !on; $("logout").hidden = !on;
+    };
+    function signOut(msg) {
+      token = null;
+      try { sessionStorage.removeItem("mansa-admin-token"); } catch {}
+      show(false);
+      $("login-err").textContent = msg || "";
+    }
+
+    async function boot() {
+      const [s, a] = await Promise.all([
+        fetch("store.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : {}).catch(() => ({})),
+        fetch("ad.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : {}).catch(() => ({})),
+      ]);
+      store = { featured: s.featured || "", heroImage: s.heroImage || "", products: s.products || [] };
+      ad = a || {};
+      await refreshMedia();
+      renderProducts(); renderHero(); fillAd();
+      show(true);
+    }
+
+    $("login").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      $("login-err").textContent = "";
+      try {
+        const d = await call("/api/login", { password: $("password").value });
+        token = d.token;
+        try { sessionStorage.setItem("mansa-admin-token", token); } catch {}
+        $("password").value = "";
+        await boot();
+      } catch (err) { $("login-err").textContent = err.message; }
+    });
+    $("logout").onclick = () => signOut();
+
+    document.querySelectorAll("#tabs button").forEach((b) => b.addEventListener("click", () => {
+      document.querySelectorAll("#tabs button").forEach((x) => x.classList.toggle("on", x === b));
+      ["products", "images", "ad"].forEach((t) => { $(`tab-${t}`).hidden = t !== b.dataset.tab; });
+      if (b.dataset.tab === "images") renderLibrary();
+    }));
+
+    // ---------- images: upload (with downscale) + library ----------
+    const MAX_SIDE = 1600;
+    const fileToB64 = (blob) => new Promise((res, rej) => {
+      const fr = new FileReader();
+      fr.onload = () => res(String(fr.result).split(",")[1]);
+      fr.onerror = rej;
+      fr.readAsDataURL(blob);
+    });
+
+    async function prepare(file) {
+      if (file.type === "image/gif" || !("createImageBitmap" in window)) return file;
+      try {
+        const bmp = await createImageBitmap(file);
+        const scale = Math.min(1, MAX_SIDE / Math.max(bmp.width, bmp.height));
+        if (scale === 1 && file.size < 1.5 * 1024 * 1024) return file;
+        const c = document.createElement("canvas");
+        c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
+        c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+        const type = file.type === "image/png" ? "image/png" : "image/webp";
+        const blob = await new Promise((r) => c.toBlob(r, type, 0.9));
+        return blob || file;
+      } catch { return file; }
+    }
+
+    async function uploadOne(file) {
+      const blob = await prepare(file);
+      const d = await call("/api/upload", { data: await fileToB64(blob) });
+      return d.url;
+    }
+
+    async function refreshMedia() {
+      try { media = (await call("/api/media")).items; } catch { media = []; }
+    }
+
+    // Opens the hidden file input and resolves the uploaded URLs
+    function chooseFiles(multiple = false) {
+      return new Promise((resolve) => {
+        const input = $("file-input");
+        input.multiple = multiple;
+        input.value = "";
+        input.onchange = async () => {
+          const files = [...input.files];
+          if (!files.length) return resolve([]);
+          toast(`Uploading ${files.length} image${files.length > 1 ? "s" : ""}…`);
+          const urls = [];
+          for (const f of files) {
+            try { urls.push(await uploadOne(f)); } catch (err) { toast(`${f.name}: ${err.message}`); }
+          }
+          await refreshMedia();
+          resolve(urls);
+        };
+        input.click();
+      });
+    }
+
+    function usedUrls() {
+      const set = new Set(store.products.map((p) => p.image).filter(Boolean));
+      if (store.heroImage) set.add(store.heroImage);
+      if (ad.image) set.add(ad.image);
+      return set;
+    }
+
+    function tile(m, { onPick, deletable } = {}) {
+      const t = el("div", { className: "tile" },
+        el("div", { className: "pic" }, el("img", { src: m.url, alt: "", loading: "lazy" })),
+        el("div", { className: "cap" }, el("span", { textContent: m.name, title: m.name }), el("span", { textContent: `${Math.max(1, Math.round(m.size / 1024))} KB` })));
+      if (usedUrls().has(m.url)) t.append(el("span", { className: "use", textContent: "In use" }));
+      if (onPick) t.onclick = () => onPick(m.url);
+      if (deletable && m.editable) {
+        const d = el("button", { className: "del", type: "button", title: "Delete image", textContent: "🗑" });
+        d.onclick = async (e) => {
+          e.stopPropagation();
+          const inUse = usedUrls().has(m.url);
+          if (!confirm(inUse ? "This image is in use. Deleting it will leave a blank image. Delete anyway?" : "Delete this image?")) return;
+          try { await call("/api/media/delete", { name: m.name }); await refreshMedia(); renderLibrary(); toast("Image deleted"); }
+          catch (err) { toast(err.message); }
+        };
+        t.append(d);
+      }
+      return t;
+    }
+
+    function renderLibrary() {
+      $("lib-grid").replaceChildren(...(media.length ? media.map((m) => tile(m, { deletable: true })) : [el("p", { className: "empty-note", textContent: "No images yet." })]));
+    }
+    $("lib-upload").onclick = async () => { const u = await chooseFiles(true); if (u.length) { renderLibrary(); toast("Uploaded"); } };
+
+    // Picker dialog -> resolves a URL (or null)
+    function pickImage() {
+      return new Promise((resolve) => {
+        const dlg = $("pick-dlg");
+        let settled = false;
+        const finish = (v) => { if (settled) return; settled = true; dlg.close(); resolve(v); };
+        const draw = () => $("pick-grid").replaceChildren(...media.map((m) => tile(m, { onPick: finish })));
+        draw();
+        $("pick-cancel").onclick = () => finish(null);
+        $("pick-upload").onclick = async () => { const u = await chooseFiles(false); if (u[0]) finish(u[0]); else draw(); };
+        dlg.addEventListener("close", () => finish(null), { once: true });
+        dlg.showModal();
+      });
+    }
+
+    // ---------- products ----------
+    async function saveStore(msg = "Saved") {
+      try {
+        store = await call("/api/store", store);
+        renderProducts(); renderHero();
+        toast(msg);
+        return true;
+      } catch (err) { toast(err.message); return false; }
+    }
+
+    function thumb(p) {
+      const t = el("div", { className: "th" });
+      if (p.image) t.append(el("img", { src: p.image, alt: "", loading: "lazy" })); else t.textContent = "No image";
+      return t;
+    }
+
+    function renderProducts() {
+      const q = $("prod-search").value.trim().toLowerCase();
+      $("prod-count").textContent = store.products.length;
+      const list = store.products.map((p, i) => ({ p, i }))
+        .filter(({ p }) => !q || `${p.name} ${p.brand || ""} ${p.category}`.toLowerCase().includes(q));
+      $("prod-rows").replaceChildren(...(list.length ? list.map(({ p, i }) => {
+        const up = el("button", { className: "ib", textContent: "↑", title: "Move up", disabled: i === 0 || !!q });
+        const down = el("button", { className: "ib", textContent: "↓", title: "Move down", disabled: i === store.products.length - 1 || !!q });
+        const star = el("button", { className: "ib" + (store.featured === p.id ? " on" : ""), textContent: "★", title: "Feature in hero" });
+        const edit = el("button", { className: "btn sm ghost", textContent: "Edit" });
+        const del = el("button", { className: "ib", textContent: "🗑", title: "Delete" });
+        up.onclick = () => move(i, -1); down.onclick = () => move(i, 1);
+        star.onclick = () => { store.featured = p.id; saveStore("Hero product updated"); };
+        edit.onclick = () => openEditor(p);
+        del.onclick = async () => {
+          if (!confirm(`Delete “${p.name}”?`)) return;
+          store.products = store.products.filter((x) => x.id !== p.id);
+          await saveStore("Product deleted");
+        };
+        const price = el("div", { className: "pr", textContent: money(p.price) });
+        if (p.was) price.append(el("s", { textContent: money(p.was) }));
+        return el("div", { className: "row" },
+          thumb(p),
+          el("div", { className: "nm" }, p.name, el("small", { textContent: p.id })),
+          el("div", { className: "cat" }, el("span", { className: "tag", textContent: p.category }), p.badge ? el("span", { className: "tag" + (p.badge === "Sale" ? " sale" : ""), textContent: p.badge, style: "margin-left:6px" }) : null),
+          price,
+          el("div", { className: "acts" }, star, up, down, edit, del));
+      }) : [el("p", { className: "empty-note", textContent: q ? "No products match." : "No products yet. Add your first one." })]));
+    }
+    $("prod-search").addEventListener("input", renderProducts);
+
+    async function move(i, d) {
+      const j = i + d;
+      if (j < 0 || j >= store.products.length) return;
+      [store.products[i], store.products[j]] = [store.products[j], store.products[i]];
+      await saveStore("Order updated");
+    }
+
+    const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 28);
+
+    function setProdImage(url) {
+      prodImage = url || "";
+      const prev = $("prod-prev");
+      prev.replaceChildren();
+      if (prodImage) prev.append(el("img", { src: prodImage, alt: "" })); else prev.textContent = "No image";
+      applyPreview();
+    }
+
+    // Live preview of the size / orientation controls on the thumbnail.
+    function applyPreview() {
+      const f = $("prod-form");
+      const img = $("prod-prev").querySelector("img");
+      const z = Number(f.elements.imgScale.value) / 100;
+      $("img-scale-val").textContent = `${f.elements.imgScale.value}%`;
+      if (!img) return;
+      img.style.rotate = `${f.elements.imgRotate.value}deg`;
+      img.style.scale = `${f.elements.imgFlip.checked ? -z : z} ${z}`;
+      img.style.objectFit = f.elements.imgFit.value || "contain";
+    }
+    ["imgScale", "imgRotate", "imgFlip", "imgFit"].forEach((n) => {
+      $("prod-form").elements[n].addEventListener("input", applyPreview);
+    });
+
+    function openEditor(p) {
+      editing = p || null;
+      const f = $("prod-form");
+      $("prod-title").textContent = p ? "Edit product" : "Add product";
+      $("cat-list").replaceChildren(...[...new Set(store.products.map((x) => x.category))].map((c) => el("option", { value: c })));
+      f.elements.name.value = p ? p.name : "";
+      $("brand-list").replaceChildren(...[...new Set(store.products.map((x) => x.brand).filter(Boolean))].map((b) => el("option", { value: b })));
+      f.elements.brand.value = p ? (p.brand || "") : "";
+      f.elements.category.value = p ? p.category : (store.products[0]?.category || "");
+      f.elements.badge.value = p ? (p.badge || "") : "";
+      f.elements.price.value = p ? p.price : "";
+      f.elements.was.value = p && p.was ? p.was : "";
+      f.elements.description.value = p ? (p.description || "") : "";
+      f.elements.specs.value = p && p.specs ? p.specs.map(([k, v]) => `${k}: ${v}`).join("\n") : "";
+      f.elements.imgScale.value = p && p.imgScale ? p.imgScale : 100;
+      f.elements.imgFit.value = p && p.imgFit ? p.imgFit : "";
+      f.elements.imgRotate.value = p && p.imgRotate ? p.imgRotate : 0;
+      f.elements.imgFlip.checked = Boolean(p && p.imgFlip);
+      setProdImage(p ? p.image : "");
+      $("prod-dlg").showModal();
+    }
+    $("add-product").onclick = () => openEditor(null);
+    $("prod-cancel").onclick = () => $("prod-dlg").close();
+    $("prod-upload").onclick = async () => { const u = await chooseFiles(false); if (u[0]) setProdImage(u[0]); };
+    $("prod-pick").onclick = async () => { const u = await pickImage(); if (u) setProdImage(u); };
+    $("prod-clear").onclick = () => setProdImage("");
+
+    $("prod-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const f = e.target.elements;
+      const specs = f.specs.value.split("\n").map((l) => {
+        const i = l.indexOf(":");
+        return i > 0 ? [l.slice(0, i).trim(), l.slice(i + 1).trim()] : null;
+      }).filter((x) => x && x[0] && x[1]);
+      const item = {
+        id: editing ? editing.id : `${slug(f.name.value) || "item"}-${Math.random().toString(36).slice(2, 6)}`,
+        name: f.name.value.trim(),
+        category: f.category.value.trim(),
+        brand: f.brand.value.trim(),
+        price: Number(f.price.value) || 0,
+        description: f.description.value.trim(),
+      };
+      if (f.was.value && Number(f.was.value) > item.price) item.was = Number(f.was.value);
+      if (f.badge.value) item.badge = f.badge.value;
+      if (prodImage) {
+        item.image = prodImage;
+        if (Number(f.imgScale.value) !== 100) item.imgScale = Number(f.imgScale.value);
+        if (Number(f.imgRotate.value)) item.imgRotate = Number(f.imgRotate.value);
+        if (f.imgFlip.checked) item.imgFlip = true;
+        if (f.imgFit.value) item.imgFit = f.imgFit.value;
+      }
+      if (specs.length) item.specs = specs;
+
+      if (editing) store.products = store.products.map((x) => (x.id === editing.id ? item : x));
+      else store.products = [item, ...store.products];
+
+      $("prod-save").disabled = true;
+      const ok = await saveStore(editing ? "Product updated" : "Product added");
+      $("prod-save").disabled = false;
+      if (ok) $("prod-dlg").close();
+    });
+
+    // ---------- hero ----------
+    let heroDraft = "";
+    function renderHero() {
+      const sel = $("hero-product");
+      sel.replaceChildren(...store.products.map((p) => el("option", { value: p.id, textContent: p.name, selected: p.id === store.featured })));
+      heroDraft = store.heroImage || "";
+      drawHeroPrev();
+    }
+    function drawHeroPrev() {
+      const prev = $("hero-prev");
+      prev.replaceChildren();
+      if (heroDraft) prev.append(el("img", { src: heroDraft, alt: "" }));
+      else {
+        const p = store.products.find((x) => x.id === $("hero-product").value);
+        if (p && p.image) prev.append(el("img", { src: p.image, alt: "" })); else prev.textContent = "Uses the product's image";
+      }
+    }
+    $("hero-product").addEventListener("change", drawHeroPrev);
+    $("hero-upload").onclick = async () => { const u = await chooseFiles(false); if (u[0]) { heroDraft = u[0]; drawHeroPrev(); } };
+    $("hero-pick").onclick = async () => { const u = await pickImage(); if (u) { heroDraft = u; drawHeroPrev(); } };
+    $("hero-clear").onclick = () => { heroDraft = ""; drawHeroPrev(); };
+    $("hero-save").onclick = async () => {
+      store.featured = $("hero-product").value;
+      store.heroImage = heroDraft;
+      const ok = await saveStore("Hero saved");
+      $("hero-status").textContent = ok ? "Saved. Live on the store now." : "";
+      $("hero-status").className = "status ok";
+    };
+
+    // ---------- ad popup ----------
+    const adForm = $("ad-form");
+    const AD_FIELDS = ["badge", "title", "text", "buttonLabel", "buttonLink", "theme", "frequency", "startDate", "endDate"];
+    const readAd = () => {
+      const out = { enabled: adForm.elements.enabled.checked, image: adImage };
+      AD_FIELDS.forEach((k) => { out[k] = adForm.elements[k].value; });
+      return out;
+    };
+    function syncAdImage() { $("ad-thumb").hidden = $("ad-clear").hidden = !adImage; if (adImage) $("ad-thumb").src = adImage; }
+    function drawAd() { $("ad-preview").replaceChildren(window.MansaAd.build(readAd())); }
+    function fillAd() {
+      adForm.elements.enabled.checked = !!ad.enabled;
+      AD_FIELDS.forEach((k) => { adForm.elements[k].value = ad[k] || (k === "theme" ? "light" : k === "frequency" ? "session" : ""); });
+      adImage = ad.image || "";
+      syncAdImage(); drawAd();
+    }
+    adForm.addEventListener("input", drawAd);
+    $("ad-upload").onclick = async () => { const u = await chooseFiles(false); if (u[0]) { adImage = u[0]; syncAdImage(); drawAd(); } };
+    $("ad-pick").onclick = async () => { const u = await pickImage(); if (u) { adImage = u; syncAdImage(); drawAd(); } };
+    $("ad-clear").onclick = () => { adImage = ""; syncAdImage(); drawAd(); };
+    adForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      $("ad-save").disabled = true;
+      try {
+        ad = await call("/api/ad", readAd());
+        $("ad-status").textContent = "Saved. Live on the store now."; $("ad-status").className = "status ok";
+      } catch (err) { $("ad-status").textContent = err.message; $("ad-status").className = "status err"; }
+      $("ad-save").disabled = false;
+    });
+
+    if (token) boot().catch(() => signOut());
+  })();
+  </script>
+</body>
+</html>

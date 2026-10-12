@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+<defs>
+  <radialGradient id="glow" cx="50%" cy="46%" r="55%"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <linearGradient id="body" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dcdcd6"/></linearGradient>
+  <linearGradient id="bodyH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f3f3ef"/><stop offset=".5" stop-color="#ffffff"/><stop offset="1" stop-color="#d6d6d0"/></linearGradient>
+  <linearGradient id="dark" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#47474c"/><stop offset="1" stop-color="#19191c"/></linearGradient>
+  <linearGradient id="darkH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2a2a2e"/><stop offset=".5" stop-color="#4a4a50"/><stop offset="1" stop-color="#1c1c1f"/></linearGradient>
+  <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f1f1f3"/><stop offset=".5" stop-color="#c4c4ca"/><stop offset="1" stop-color="#9c9ca4"/></linearGradient>
+  <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5b6c91"/><stop offset=".5" stop-color="#1b2234"/><stop offset="1" stop-color="#0a0d16"/></linearGradient>
+  <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7aa2ff"/><stop offset=".55" stop-color="#b58cff"/><stop offset="1" stop-color="#ffb08a"/></linearGradient>
+  <linearGradient id="pcb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f8f66"/><stop offset="1" stop-color="#1c5e43"/></linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7dd8a"/><stop offset="1" stop-color="#c9a13c"/></linearGradient>
+  <linearGradient id="drum" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9ad1bd"/><stop offset=".5" stop-color="#4f9a83"/><stop offset="1" stop-color="#2d6957"/></linearGradient>
+  <filter id="blur" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+</defs>
+<circle cx="300" cy="290" r="250" fill="url(#glow)"/><ellipse cx="300" cy="472" rx="220" ry="18" fill="#000" opacity=".16" filter="url(#blur)"/>
+  <rect x="186" y="124" width="228" height="112" rx="6" fill="#fff" stroke="#d6d6cf" stroke-width="2"/>
+  <path d="M212 156h176M212 178h130" stroke="#d6d6cf" stroke-width="5" stroke-linecap="round"/>
+  <rect x="84" y="216" width="432" height="224" rx="28" fill="url(#bodyH)"/>
+  <rect x="84" y="216" width="432" height="60" rx="26" fill="#f6f6f2"/>
+  <rect x="84" y="268" width="432" height="8" fill="#d6d6cf"/>
+  <rect x="360" y="230" width="120" height="30" rx="8" fill="url(#glass)"/>
+  <rect x="120" y="234" width="20" height="20" rx="4" fill="#06b6d4"/><rect x="148" y="234" width="20" height="20" rx="4" fill="#ec4899"/>
+  <rect x="176" y="234" width="20" height="20" rx="4" fill="#facc15"/><rect x="204" y="234" width="20" height="20" rx="4" fill="#27272a"/>
+  <rect x="140" y="316" width="320" height="36" rx="8" fill="#1d1d20"/>
+  <rect x="190" y="324" width="220" height="14" rx="3" fill="#fff"/>
+  <rect x="120" y="388" width="360" height="40" rx="12" fill="url(#body)" stroke="#d6d6cf" stroke-width="2"/>
+</svg>
