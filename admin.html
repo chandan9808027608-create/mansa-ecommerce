@@ -230,8 +230,8 @@
       </div>
       <datalist id="cat-list"></datalist>
       <div class="two">
-        <label class="f">Price (NPR) <input type="number" name="price" min="0" step="1" required></label>
-        <label class="f">Old price <small>(optional, shows as struck through)</small><input type="number" name="was" min="0" step="1"></label>
+        <label class="f">Regular price (NPR) <input type="number" name="price" min="0" step="1" required></label>
+        <label class="f">Discount % <small id="disc-note">(optional)</small><input type="number" name="discount" min="0" max="99" step="0.5" placeholder="e.g. 10"></label>
       </div>
       <label class="f">Description <textarea name="description" maxlength="400" placeholder="One or two sentences"></textarea></label>
       <label class="f">Specs <small>(one per line, as “Label: value”)</small>
@@ -497,8 +497,8 @@
           store.products = store.products.filter((x) => x.id !== p.id);
           await saveStore("Product deleted");
         };
-        const price = el("div", { className: "pr", textContent: money(p.price) });
-        if (p.was) price.append(el("s", { textContent: money(p.was) }));
+        const price = el("div", { className: "pr", textContent: money(finalPrice(p.price, p.discount)) });
+        if (p.discount) price.append(el("s", { textContent: money(p.price) }), ` −${p.discount}%`);
         return el("div", { className: "row" },
           thumb(p),
           el("div", { className: "nm" }, p.name, el("small", { textContent: p.id })),
@@ -541,6 +541,13 @@
       $("prod-form").elements[n].addEventListener("input", applyPreview);
     });
 
+    const finalPrice = (price, d) => (d > 0 && d < 100 ? Math.round(price * (1 - d / 100)) : price);
+    function discNote() {
+      const f = $("prod-form"), d = Number(f.elements.discount.value), pr = Number(f.elements.price.value);
+      $("disc-note").textContent = d > 0 && d < 100 && pr ? `(customers pay ${money(finalPrice(pr, d))})` : "(optional)";
+    }
+    ["discount", "price"].forEach((n) => $("prod-form").elements[n].addEventListener("input", discNote));
+
     function openEditor(p) {
       editing = p || null;
       const f = $("prod-form");
@@ -552,7 +559,8 @@
       f.elements.category.value = p ? p.category : (store.products[0]?.category || "");
       f.elements.badge.value = p ? (p.badge || "") : "";
       f.elements.price.value = p ? p.price : "";
-      f.elements.was.value = p && p.was ? p.was : "";
+      f.elements.discount.value = p && p.discount ? p.discount : "";
+      discNote();
       f.elements.description.value = p ? (p.description || "") : "";
       f.elements.specs.value = p && p.specs ? p.specs.map(([k, v]) => `${k}: ${v}`).join("\n") : "";
       f.elements.imgScale.value = p && p.imgScale ? p.imgScale : 100;
@@ -583,7 +591,8 @@
         price: Number(f.price.value) || 0,
         description: f.description.value.trim(),
       };
-      if (f.was.value && Number(f.was.value) > item.price) item.was = Number(f.was.value);
+      const disc = Number(f.discount.value);
+      if (disc > 0 && disc < 100) item.discount = disc;
       if (f.badge.value) item.badge = f.badge.value;
       if (prodImage) {
         item.image = prodImage;

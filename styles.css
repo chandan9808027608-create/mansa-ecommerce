@@ -351,3 +351,7 @@ html.bag-open { overflow: hidden; }
 .qv .media img { object-fit: contain; padding: 8%; }
 .media img { background: transparent; }
 .qv-body .brand { font-size: 14px; font-weight: 600; margin: 2px 0 6px; }
+
+.deals { margin-bottom: 56px; }
+.deals h2 { margin-bottom: 20px; }
+.deals h2::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #ef4444; margin-right: 12px; vertical-align: middle; }

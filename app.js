@@ -6,7 +6,14 @@
     const r = await fetch("store.json", { cache: "no-store" });
     if (r.ok) data = await r.json();
   } catch {}
-  const PRODUCTS = Array.isArray(data.products) ? data.products : [];
+  // A product's `price` is its regular price; `discount` (percent) lowers it. After this,
+  // `price` is what the customer pays and `was` the struck-through regular price.
+  const PRODUCTS = (Array.isArray(data.products) ? data.products : []).map((p) => {
+    const d = Number(p.discount) || 0;
+    if (d <= 0 || d >= 100) return { ...p, discount: 0 };
+    return { ...p, discount: d, was: p.price, price: Math.round(p.price * (1 - d / 100)), badge: p.badge || `-${d}%` };
+  });
+  const isSale = (p) => Boolean(p.discount) || p.badge === "Sale";
   const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const $ = (id) => document.getElementById(id);
   const money = (n) => `${STORE.currency} ${n.toLocaleString("en-IN")}`;
@@ -215,13 +222,9 @@
   }
   addEventListener("resize", () => moveChipInk());
 
-  function renderGrid() {
-    const items = visible();
-    $("result-count").textContent = `${items.length} ${items.length === 1 ? "item" : "items"}`;
-    $("none").hidden = items.length > 0;
-    $("grid").replaceChildren(...items.map((p, i) => {
+  function cardFor(p, i) {
       const media = mediaFor(p);
-      if (p.badge) media.append(el("span", { className: "badge" + (p.badge === "Sale" ? " sale" : ""), textContent: p.badge }));
+      if (p.badge) media.append(el("span", { className: "badge" + (isSale(p) ? " sale" : ""), textContent: p.badge }));
       const add = el("button", { className: "btn sm quick-add", type: "button", textContent: "Add to bag" });
       add.onclick = (e) => { e.stopPropagation(); addToCart(p.id, 1); };
       media.append(add);
@@ -236,7 +239,20 @@
       card.onclick = () => openQuick(p);
       card.onkeydown = (e) => { if (e.key === "Enter") openQuick(p); };
       return card;
-    }));
+  }
+
+  function renderGrid() {
+    const items = visible();
+    $("result-count").textContent = `${items.length} ${items.length === 1 ? "item" : "items"}`;
+    $("none").hidden = items.length > 0;
+    $("grid").replaceChildren(...items.map(cardFor));
+  }
+
+  // "Discount now": every product with a discount, regardless of the filters below.
+  function renderDeals() {
+    const deals = PRODUCTS.filter((p) => p.discount).sort((a, b) => b.discount - a.discount);
+    $("deals").hidden = deals.length === 0;
+    $("deals-grid").replaceChildren(...deals.map(cardFor));
   }
 
   // Grid swap. Cards that stay glide to their new place (FLIP), cards that leave
@@ -335,7 +351,7 @@
       el("li", {}, el("span", { textContent: k }), el("b", { textContent: v, style: "font-weight:500" }))));
 
     const media = mediaFor(p);
-    if (p.badge) media.append(el("span", { className: "badge" + (p.badge === "Sale" ? " sale" : ""), textContent: p.badge }));
+    if (p.badge) media.append(el("span", { className: "badge" + (isSale(p) ? " sale" : ""), textContent: p.badge }));
 
     dlg.replaceChildren(el("div", { className: "qv" },
       media,
@@ -716,6 +732,7 @@
 
   renderFilters();
   renderGrid();
+  renderDeals();
   renderCart();
   moveInk();
   moveChipInk();

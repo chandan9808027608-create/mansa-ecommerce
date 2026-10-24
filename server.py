@@ -84,9 +84,12 @@ def clean_store(raw: dict) -> dict:
             "price": to_price(item.get("price")),
             "description": str(item.get("description", "")).strip()[:400],
         }
-        was = to_price(item.get("was"), 0)
-        if was > prod["price"]:
-            prod["was"] = was
+        try:
+            disc = round(float(item.get("discount") or 0), 1)
+        except (TypeError, ValueError):
+            disc = 0
+        if 0 < disc < 100:
+            prod["discount"] = disc
         badge = str(item.get("badge", ""))
         if badge in BADGES and badge:
             prod["badge"] = badge
