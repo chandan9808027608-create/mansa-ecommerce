@@ -593,14 +593,18 @@
   // Count the subtotal up/down instead of snapping
   let shownTotal = 0;
   let totalRaf = 0;
+  let totalTimer = 0;
   function animateTotal(to) {
     cancelAnimationFrame(totalRaf);
+    clearTimeout(totalTimer);
+    // Safety net: whatever the frame timer does, the real total is shown shortly after.
+    totalTimer = setTimeout(() => { cancelAnimationFrame(totalRaf); shownTotal = to; $("cart-total").textContent = money(to); }, 600);
     const from = shownTotal;
     const out = $("cart-total");
     if (reduceMotion || from === to) { shownTotal = to; out.textContent = money(to); return; }
     const t0 = performance.now();
     const step = (now) => {
-      const t = Math.min(1, (now - t0) / 450);
+      const t = Math.max(0, Math.min(1, (now - t0) / 450));  // frame time can be slightly before t0
       shownTotal = Math.round(from + (to - from) * (1 - (1 - t) ** 3));
       out.textContent = money(shownTotal);
       if (t < 1) totalRaf = requestAnimationFrame(step);
