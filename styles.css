@@ -743,3 +743,7 @@ dialog.ad.ad-img { width: fit-content; max-width: min(900px, 92vw); }
 
 /* Scrolling inside popups stays inside them */
 dialog, .drawer-body { overscroll-behavior: contain; }
+
+/* Shop: quick, light entrance when results change (category, brand, search, sort, page) */
+.grid.fresh .card { animation: cardIn .38s cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes cardIn { from { opacity: 0; transform: translateY(10px); } }

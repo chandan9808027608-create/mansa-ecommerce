@@ -276,9 +276,12 @@
     if (id && id !== "top" && !node) return;
     e.preventDefault();
     const cat = a.dataset.cat;
-    const hold = Boolean(cat && node && cat !== state.category);
-    if (cat) setCategory(cat, { hold });
-    if (node) scrollToEl(node, hold ? commitSwap : null); else scrollToY(0);
+    if (cat && IS_SHOP) {
+      setCategory(cat, { keepInPlace: false });
+      scrollToEl(resultsTop());
+      return;
+    }
+    if (node) scrollToEl(node); else scrollToY(0);
     history.replaceState(null, "", node ? `#${id}` : location.pathname + location.search);
   });
 
@@ -457,71 +460,31 @@
     $("deals-grid").replaceChildren(...deals.slice(0, limit).map(cardFor));
   }
 
-  // Grid swap. Cards that stay glide to their new place (FLIP), cards that leave
-  // fade out first, cards that arrive rise in. The grid height eases too.
-  const EASE = "cubic-bezier(.22, 1, .36, 1)";
-  let swapToken = 0;
-  let swapPending = false;
-
+  // Grid swap: show the new results at once with a light fade-in (CSS), no long chained animations.
   function swapGrid() {
+    renderGrid();
     const grid = $("grid");
-    const token = ++swapToken;
-    if (reduceMotion || !grid.children.length || !grid.animate) { renderGrid(); return; }
-
-    grid.getAnimations({ subtree: true }).forEach((a) => a.cancel());
-    const keep = new Set(visible().map((p) => p.id));
-    const leaving = [...grid.children].filter((c) => !keep.has(c.dataset.id));
-
-    const run = () => {
-      if (token !== swapToken) return;
-      const first = new Map([...grid.children].map((c) => [c.dataset.id, c.getBoundingClientRect()]));
-      const h0 = grid.offsetHeight;
-      renderGrid();
-      const h1 = grid.offsetHeight;
-
-      let enter = 0;
-      [...grid.children].forEach((c) => {
-        const prev = first.get(c.dataset.id);
-        if (prev) {
-          const now = c.getBoundingClientRect();
-          const dx = prev.left - now.left, dy = prev.top - now.top;
-          if (dx || dy) c.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "none" }], { duration: 700, easing: EASE });
-        } else {
-          c.animate(
-            [{ opacity: 0, transform: "translateY(24px) scale(.97)" }, { opacity: 1, transform: "none" }],
-            { duration: 700, delay: 120 + Math.min(enter++, 8) * 45, easing: EASE, fill: "backwards" });
-        }
-      });
-
-      if (h0 !== h1) {
-        grid.style.overflow = "hidden";
-        const a = grid.animate([{ height: `${h0}px` }, { height: `${h1}px` }], { duration: 600, easing: EASE });
-        a.onfinish = a.oncancel = () => { grid.style.overflow = ""; };
-      }
-    };
-
-    if (!leaving.length) { run(); return; }
-    let done = 0;
-    leaving.forEach((c) => {
-      const a = c.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "scale(.96)" }], { duration: 220, easing: "ease-out", fill: "forwards" });
-      a.onfinish = () => { if (++done === leaving.length) run(); };
-    });
+    grid.classList.remove("flip", "fresh");
+    void grid.offsetWidth;  // restart the entrance animation
+    grid.classList.add("fresh");
   }
+  const resultsTop = () => $("result-count").closest(".shop-top");
 
-  // Called once the page has arrived at the shop (or straight away for chips).
-  function commitSwap() {
-    if (!swapPending) return;
-    swapPending = false;
-    swapGrid();
-  }
-  function setCategory(c, { hold = false } = {}) {
+  // Switch category. "Discount now" hides at the same moment, and by default the page is
+  // nudged so the category pills stay put on screen instead of jumping when content above changes.
+  function setCategory(c, { keepInPlace = true } = {}) {
     if (c === state.category) return;
+    const anchor = $("filters");
+    const before = anchor.getBoundingClientRect().top;
     state.category = c;
     state.page = 1;
     if ($("deals")) $("deals").hidden = c !== "All" || !PRODUCTS.some((p) => p.discount);
     renderFilters();
-    swapPending = true;
-    if (!hold) commitSwap();
+    swapGrid();
+    if (keepInPlace) {
+      const shift = anchor.getBoundingClientRect().top - before;
+      if (Math.abs(shift) > 1) scrollBy({ top: shift, behavior: "instant" });
+    }
   }
 
   if (IS_SHOP) {
