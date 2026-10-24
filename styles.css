@@ -624,3 +624,7 @@ dialog.ad.ad-img { width: fit-content; max-width: min(900px, 92vw); }
   dialog#quick .qv-actions { position: sticky; bottom: 0; margin: 14px -18px 0; padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
     background: #fff; border-top: 1px solid var(--line); box-shadow: 0 -8px 20px rgba(16, 36, 72, .06); }
 }
+
+/* Home: Services now follows the shop preview */
+.shop + .services { padding-top: 0; padding-bottom: 88px; }
+@media (max-width: 760px) { .shop + .services { padding-top: 0; padding-bottom: 56px; } .shop:has(+ .services) { padding-bottom: 56px; } }
