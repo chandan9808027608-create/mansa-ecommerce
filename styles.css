@@ -729,3 +729,13 @@ dialog.ad.ad-img { width: fit-content; max-width: min(900px, 92vw); }
   .about-copy p { font-size: 15px; }
   .about .svc-grid { grid-template-columns: 1fr; }
 }
+
+/* Hero slideshow (2+ featured products) */
+.fi-dots { grid-column: 1 / -1; display: flex; gap: 6px; margin-top: 10px; }
+.fi-dot { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 999px; background: #cdd6e6; cursor: pointer; transition: width .3s, background .3s; }
+.fi-dot[aria-selected="true"] { width: 22px; background: var(--brand-blue); }
+.feature-info.swap h3, .feature-info.swap p, .feature-info.swap .fi-thumb, .feature-info.swap .badge { animation: slideIn .45s cubic-bezier(.2, .9, .25, 1) both; }
+.hero-main.swap > * { animation: slideIn .5s cubic-bezier(.2, .9, .25, 1) both; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(14px); } }
+@media (max-width: 760px) { .fi-dots { grid-column: 2; margin-top: 8px; } }
+.feature-info h3 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }

@@ -152,18 +152,23 @@
   status.textContent = open ? "Open now" : "Closed now";
   status.classList.add(open ? "open" : "closed");
 
-  // Hero: one featured product
-  const hero = find(data.featured) || find(STORE.featured) || PRODUCTS[0];
+  // Hero: the featured products (several = a slideshow)
+  const featIds = Array.isArray(data.featured) ? data.featured : String(data.featured || STORE.featured || "").split(",");
+  const feats = [...new Set(featIds)].map((id) => find(String(id).trim())).filter(Boolean);
+  if (!feats.length && PRODUCTS[0]) feats.push(PRODUCTS[0]);
+  const hero = feats[0];
   if (hero && $("feature")) {
     const f = $("feature");
     f.className = "feature";
-    const heroImg = data.heroImage || hero.image || placeholderFor(hero);
+    // The optional hero image from admin replaces the first slide's photo only.
+    const slideImg = (p, i) => (i === 0 && data.heroImage) || p.image || placeholderFor(p);
+    const heroImg = slideImg(hero, 0);
     const artHtml = (src, cat) => (src ? `<img src="${esc(src)}" alt="" draggable="false">` : artFor(cat));
 
     // One floating card per category around the featured product, preferring
     // products with a real photo, never repeating the hero product.
     const pickFor = (cat) => {
-      const pool = PRODUCTS.filter((p) => p.category === cat && p.id !== hero.id);
+      const pool = PRODUCTS.filter((p) => p.category === cat && !feats.includes(p));
       return pool.find((p) => /\.(jpe?g|png|webp)$/i.test(p.image || "")) || pool.find((p) => p.badge === "Best seller")
         || pool.find((p) => p.discount && placeholderFor(p)) || pool.find((p) => placeholderFor(p)) || pool[0];
     };
@@ -188,9 +193,45 @@
           <h3>${esc(hero.name)}</h3>
           <p>${money(hero.price)}${hero.was ? ` <s>${money(hero.was)}</s>` : ""}</p>
           <button class="btn sm" type="button">View product</button>
+          ${feats.length > 1 ? `<div class="fi-dots" role="tablist" aria-label="Featured products">${feats.map((p, i) =>
+            `<button type="button" class="fi-dot" role="tab" aria-label="${esc(p.name)}" aria-selected="${i === 0}"></button>`).join("")}</div>` : ""}
         </div>
       </div>`;
-    f.querySelector(".feature-info button").onclick = () => openQuick(hero);
+    let current = 0;
+    f.querySelector(".feature-info .btn").onclick = () => openQuick(feats[current]);
+
+    // Slideshow: swap the product shown in the hero tile and the info card
+    if (feats.length > 1) {
+      const info = f.querySelector(".feature-info");
+      const main = f.querySelector(".hero-main");
+      const dots = [...f.querySelectorAll(".fi-dot")];
+      const show = (i) => {
+        current = (i + feats.length) % feats.length;
+        const p = feats[current], img = artHtml(slideImg(p, current), p.category);
+        main.innerHTML = img;
+        info.querySelector(".fi-thumb").innerHTML = img;
+        const badge = info.querySelector(".badge");
+        badge.textContent = p.badge || "Featured";
+        badge.className = "badge" + (p.badge === "Sale" ? " sale" : "");
+        info.querySelector("h3").textContent = p.name;
+        info.querySelector("p").innerHTML = `${money(p.price)}${p.was ? ` <s>${money(p.was)}</s>` : ""}`;
+        dots.forEach((d, k) => d.setAttribute("aria-selected", String(k === current)));
+        [main, info].forEach((n) => { n.classList.remove("swap"); void n.offsetWidth; n.classList.add("swap"); });
+      };
+      dots.forEach((d, k) => { d.onclick = () => { show(k); restart(); }; });
+      let timer = 0, paused = false;
+      const restart = () => { clearInterval(timer); timer = setInterval(() => { if (!paused && !document.hidden) show(current + 1); }, 5000); };
+      f.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") paused = true; });
+      f.addEventListener("pointerleave", () => { paused = false; });
+      let x0 = null;  // swipe on phones
+      info.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+      info.addEventListener("touchend", (e) => {
+        if (x0 === null) return;
+        const dx = e.changedTouches[0].clientX - x0; x0 = null;
+        if (Math.abs(dx) > 40) { show(current + (dx < 0 ? 1 : -1)); restart(); }
+      });
+      restart();
+    }
     f.querySelectorAll(".orbit-card").forEach((b) => { b.onclick = () => openQuick(find(b.dataset.id)); });
   }
 

@@ -155,7 +155,7 @@
         </div>
         <div class="rows" id="prod-rows"></div>
       </div>
-      <p class="hint">Changes are saved to the store immediately. The star marks the product featured in the hero. The order here is the order shown in the store.</p>
+      <p class="hint">Changes are saved to the store immediately. The ★ adds a product to the hero slideshow (star several to rotate them). The order here is the order shown in the store.</p>
     </section>
 
     <!-- Site images -->
@@ -164,9 +164,12 @@
         <h2>Hero</h2>
         <p class="sub">The big product at the top of the home page.</p>
         <div class="two">
-          <label class="f">Featured product <select class="f" id="hero-product"></select></label>
+          <div class="f" style="font-size:13px;font-weight:500">Featured products <small style="color:var(--muted);font-weight:400">(slideshow order)</small>
+            <ol id="hero-list" style="margin:8px 0 0 18px;font-weight:400;line-height:1.6"></ol>
+            <small style="color:var(--muted);font-weight:400">Use the ★ in the Products tab to add or remove. With 2 or more, the hero becomes a slideshow.</small>
+          </div>
           <div>
-            <div style="font-size:13px;font-weight:500">Hero image <small style="color:var(--muted);font-weight:400">(optional override)</small></div>
+            <div style="font-size:13px;font-weight:500">Hero image <small style="color:var(--muted);font-weight:400">(optional, replaces the first slide's photo)</small></div>
             <div class="imgbox" style="margin-top:6px">
               <div class="prev" id="hero-prev">Uses the product's image</div>
               <div class="col">
@@ -328,7 +331,8 @@
     const money = (n) => `NPR ${Number(n).toLocaleString("en-IN")}`;
 
     const DB = window.MansaData;
-    let store = { featured: "", heroImage: "", products: [] };
+    let store = { featured: [], heroImage: "", products: [] };
+    const isFeatured = (id) => store.featured.includes(id);
     let media = [];
     let ad = {};
     let adImage = "";
@@ -372,7 +376,7 @@
 
     async function boot() {
       const [s, a] = await Promise.all([DB.loadStore(), DB.loadAd().catch(() => ({}))]);
-      store = { featured: s.featured || "", heroImage: s.heroImage || "", products: s.products || [] };
+      store = { featured: Array.isArray(s.featured) ? s.featured : (s.featured ? [s.featured] : []), heroImage: s.heroImage || "", products: s.products || [] };
       ad = a || {};
       media = await guard(() => DB.listMedia());  // also confirms the session is still valid
       renderProducts(); renderHero(); fillAd();
@@ -519,11 +523,17 @@
       $("prod-rows").replaceChildren(...(list.length ? list.slice(0, SHOWN).map(({ p, i }) => {
         const up = el("button", { className: "ib", textContent: "↑", title: "Move up", disabled: i === 0 || !!q });
         const down = el("button", { className: "ib", textContent: "↓", title: "Move down", disabled: i === store.products.length - 1 || !!q });
-        const star = el("button", { className: "ib" + (store.featured === p.id ? " on" : ""), textContent: "★", title: "Feature in hero" });
+        const star = el("button", { className: "ib" + (isFeatured(p.id) ? " on" : ""), textContent: "★",
+          title: isFeatured(p.id) ? "Remove from the hero slideshow" : "Add to the hero slideshow" });
         const edit = el("button", { className: "btn sm ghost", textContent: "Edit" });
         const del = el("button", { className: "ib", textContent: "🗑", title: "Delete" });
         up.onclick = () => move(i, -1); down.onclick = () => move(i, 1);
-        star.onclick = () => { store.featured = p.id; saveStore("Hero product updated"); };
+        star.onclick = () => {
+          const on = isFeatured(p.id);
+          if (on && store.featured.length === 1) { toast("Keep at least one featured product"); return; }
+          store.featured = on ? store.featured.filter((x) => x !== p.id) : [...store.featured, p.id];
+          saveStore(on ? "Removed from the hero slideshow" : `Added to the hero slideshow (${store.featured.length} featured)`);
+        };
         edit.onclick = () => openEditor(p);
         del.onclick = async () => {
           if (!confirm(`Delete “${p.name}”?`)) return;
@@ -650,8 +660,8 @@
     // ---------- hero ----------
     let heroDraft = "";
     function renderHero() {
-      const sel = $("hero-product");
-      sel.replaceChildren(...store.products.map((p) => el("option", { value: p.id, textContent: p.name, selected: p.id === store.featured })));
+      $("hero-list").replaceChildren(...store.featured.map((id) => store.products.find((p) => p.id === id)).filter(Boolean)
+        .map((p) => el("li", { textContent: p.name })));
       heroDraft = store.heroImage || "";
       drawHeroPrev();
     }
@@ -660,16 +670,14 @@
       prev.replaceChildren();
       if (heroDraft) prev.append(el("img", { src: heroDraft, alt: "" }));
       else {
-        const p = store.products.find((x) => x.id === $("hero-product").value);
+        const p = store.products.find((x) => x.id === store.featured[0]);
         if (p && p.image) prev.append(el("img", { src: p.image, alt: "" })); else prev.textContent = "Uses the product's image";
       }
     }
-    $("hero-product").addEventListener("change", drawHeroPrev);
     $("hero-upload").onclick = async () => { const u = await chooseFiles(false); if (u[0]) { heroDraft = u[0]; drawHeroPrev(); } };
     $("hero-pick").onclick = async () => { const u = await pickImage(); if (u) { heroDraft = u; drawHeroPrev(); } };
     $("hero-clear").onclick = () => { heroDraft = ""; drawHeroPrev(); };
     $("hero-save").onclick = async () => {
-      store.featured = $("hero-product").value;
       store.heroImage = heroDraft;
       const ok = await saveStore("Hero saved");
       $("hero-status").textContent = ok ? "Saved. Live on the store now." : "";

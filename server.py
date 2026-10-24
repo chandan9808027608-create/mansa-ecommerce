@@ -123,9 +123,15 @@ def clean_store(raw: dict) -> dict:
         if specs:
             prod["specs"] = specs
         products.append(prod)
-    featured = str(raw.get("featured", ""))
-    if featured not in seen:
-        featured = products[0]["id"] if products else ""
+    raw_f = raw.get("featured", [])
+    if isinstance(raw_f, str):
+        raw_f = raw_f.split(",")
+    featured = []
+    for f in raw_f if isinstance(raw_f, list) else []:
+        f = str(f).strip()
+        if f in seen and f not in featured:
+            featured.append(f)
+    featured = featured[:12] or ([products[0]["id"]] if products else [])
     return {"featured": featured, "heroImage": clean_url(raw.get("heroImage")), "products": products,
             "updatedAt": int(time.time())}
 

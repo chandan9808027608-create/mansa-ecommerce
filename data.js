@@ -120,6 +120,9 @@
     fr.readAsDataURL(blob);
   });
 
+  // Featured products: a list of ids. Older data stored one id, or ids joined with commas.
+  const featuredList = (v) => (Array.isArray(v) ? v : String(v || "").split(",")).map((x) => String(x).trim()).filter(Boolean);
+
   // ---------- public API ----------
   const api = {
     mode: USE_SB ? "supabase" : "local",
@@ -127,7 +130,7 @@
     async loadStore() {
       if (!USE_SB) {
         const s = await getJson("store.json");
-        return { featured: s.featured || "", heroImage: s.heroImage || "", products: Array.isArray(s.products) ? s.products : [] };
+        return { featured: featuredList(s.featured), heroImage: s.heroImage || "", products: Array.isArray(s.products) ? s.products : [] };
       }
       const c = await sb();
       const [rows, set] = await Promise.all([
@@ -135,7 +138,7 @@
         c.from("settings").select("value").eq("key", "store").maybeSingle().then(must),
       ]);
       const v = (set && set.value) || {};
-      return { featured: v.featured || "", heroImage: v.heroImage || "", products: rows.map(fromRow) };
+      return { featured: featuredList(v.featured), heroImage: v.heroImage || "", products: rows.map(fromRow) };
     },
 
     async loadAd() {
@@ -191,11 +194,12 @@
     async saveStore(store) {
       const products = store.products.map(cleanProduct);
       const ids = new Set(products.map((p) => p.id));
-      const featured = ids.has(store.featured) ? store.featured : (products[0] ? products[0].id : "");
+      let featured = [...new Set(featuredList(store.featured).filter((id) => ids.has(id)))].slice(0, 12);
+      if (!featured.length && products[0]) featured = [products[0].id];
       const heroImage = url(store.heroImage);
       if (!USE_SB) return call("/api/store", { featured, heroImage, products });
       const c = await sb();
-      must(await c.rpc("save_store", { p_products: products.map(toRow), p_featured: featured, p_hero_image: heroImage }));
+      must(await c.rpc("save_store", { p_products: products.map(toRow), p_featured: featured.join(","), p_hero_image: heroImage }));
       return { featured, heroImage, products };
     },
 
