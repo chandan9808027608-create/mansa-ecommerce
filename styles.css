@@ -714,3 +714,18 @@ dialog.ad.ad-img { width: fit-content; max-width: min(900px, 92vw); }
   .foot-grid > div:nth-child(4) #wa-link { background: #25d366; border-color: #25d366; color: #fff; }
   .legal { margin-top: 8px; padding-top: 16px; text-align: center; }
 }
+
+/* ---------- About us (home) ---------- */
+.about-intro { max-width: 780px; margin-bottom: 56px; }
+.eyebrow { display: inline-block; font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--brand-orange); margin-bottom: 10px; }
+.about-copy h2 { font-size: clamp(28px, 3.2vw, 38px); letter-spacing: -0.03em; font-weight: 800; line-height: 1.1; margin-bottom: 18px; color: #0d1b36; }
+.about-copy p { color: #4e586d; font-size: 16px; line-height: 1.7; margin-bottom: 14px; }
+.about-copy .lead { color: var(--hdr-ink); font-size: 18px; }
+.about .svc-grid { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 1000px) { .about .svc-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 760px) {
+  .about-intro { margin-bottom: 36px; }
+  .about-copy .lead { font-size: 16.5px; }
+  .about-copy p { font-size: 15px; }
+  .about .svc-grid { grid-template-columns: 1fr; }
+}
