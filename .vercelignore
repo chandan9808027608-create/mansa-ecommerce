@@ -1,0 +1,7 @@
+# Server-only and tooling files: not part of the public site
+server.py
+tools/
+supabase/
+*.md
+store.backup-*.json
+*.missing
