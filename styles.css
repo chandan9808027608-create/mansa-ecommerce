@@ -778,3 +778,10 @@ dialog, .drawer-body { overscroll-behavior: contain; }
 /* Bigger header logo */
 .header .logo img { height: 58px; }
 @media (max-width: 760px) { .header .logo img { height: 44px; } .header-inner { grid-template-rows: 66px auto; } }
+
+/* Phones and tablets: keep a one-tap call button in the header (icon only) instead of hiding it */
+@media (max-width: 1080px) {
+  .hdr-cta { display: inline-flex; width: 40px; height: 40px; padding: 0; margin: 0; justify-content: center; border-radius: 50%; font-size: 0; gap: 0; }
+  .hdr-cta svg { width: 17px; height: 17px; }
+}
+@media (max-width: 760px) { .hdr-cta { width: 38px; height: 38px; } }
