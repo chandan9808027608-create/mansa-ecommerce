@@ -747,3 +747,18 @@ dialog, .drawer-body { overscroll-behavior: contain; }
 /* Shop: quick, light entrance when results change (category, brand, search, sort, page) */
 .grid.fresh .card { animation: cardIn .38s cubic-bezier(.22, 1, .36, 1) both; }
 @keyframes cardIn { from { opacity: 0; transform: translateY(10px); } }
+
+/* ---------- Product images: equal columns, bigger products, nothing cropped ---------- */
+/* minmax(0, 1fr) keeps columns equal even when one card has a long name */
+.grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 1000px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 760px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.card, .card .info { min-width: 0; }
+/* Product fills more of its tile */
+.media.photo img { padding: 4%; }
+@media (max-width: 760px) { .media.photo img { padding: 5%; } }
+/* Product popup on phones: whole photo visible, centred */
+@media (max-width: 760px) {
+  dialog#quick .media { height: 260px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  dialog#quick .media img { width: 100%; height: 100%; max-height: 260px; object-fit: contain; padding: 18px 18px 14px; }
+}
