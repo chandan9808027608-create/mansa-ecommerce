@@ -18,8 +18,8 @@
 
   let cart = {};
   try { cart = JSON.parse(localStorage.getItem(CART_KEY)) || {}; } catch { cart = {}; }
-  const PAGE = 48;  // products shown per "page" on the shop
-  const state = { category: "All", brand: "", query: "", sort: "featured", deals: false, limit: PAGE };
+  const PAGE = 48;  // products per page on the shop
+  const state = { category: "All", brand: "", query: "", sort: "featured", deals: false, page: 1 };
   // index.html shows a short teaser; shop.html has the full catalogue (#grid).
   const IS_SHOP = Boolean(document.getElementById("grid"));
 
@@ -94,6 +94,7 @@
     if (SORTS.includes(u.get("sort"))) state.sort = u.get("sort");
     state.query = (u.get("q") || "").slice(0, 80);
     state.deals = u.get("deals") === "1";
+    state.page = Math.max(1, parseInt(u.get("page"), 10) || 1);
   }
   function syncUrl() {
     const u = new URLSearchParams();
@@ -101,6 +102,7 @@
     if (state.brand) u.set("brand", state.brand);
     if (state.query.trim()) u.set("q", state.query.trim());
     if (state.deals) u.set("deals", "1");
+    if (state.page > 1) u.set("page", state.page);
     if (state.sort !== "featured") u.set("sort", state.sort);
     const qs = u.toString();
     history.replaceState(null, "", location.pathname + (qs ? `?${qs}` : "") + location.hash);
@@ -180,6 +182,8 @@
         <div class="hero-main">${artHtml(heroImg, hero.category)}</div>
         ${tileHtml}
         <div class="feature-info">
+          <span class="fi-thumb">${artHtml(heroImg, hero.category)}</span>
+          <span class="fi-label">Now featured</span>
           <span class="badge${hero.badge === "Sale" ? " sale" : ""}">${esc(hero.badge || "Featured")}</span>
           <h3>${esc(hero.name)}</h3>
           <p>${money(hero.price)}${hero.was ? ` <s>${money(hero.was)}</s>` : ""}</p>
@@ -347,17 +351,47 @@
     const items = visible();
     $("result-count").textContent = `${items.length} ${items.length === 1 ? "item" : "items"}`;
     $("none").hidden = items.length > 0;
-    $("grid").replaceChildren(...items.slice(0, state.limit).map(cardFor));
-    const left = items.length - state.limit;
-    $("more").hidden = left <= 0;
-    $("more").textContent = `Show more (${left.toLocaleString("en-IN")} left)`;
+    const pages = Math.max(1, Math.ceil(items.length / PAGE));
+    state.page = Math.min(Math.max(1, state.page), pages);
+    const start = (state.page - 1) * PAGE;
+    $("grid").replaceChildren(...items.slice(start, start + PAGE).map(cardFor));
+    if (pages > 1) $("result-count").textContent = `${(start + 1).toLocaleString("en-IN")}–${Math.min(start + PAGE, items.length).toLocaleString("en-IN")} of ${items.length.toLocaleString("en-IN")}`;
+    renderPager(pages);
     $("on-sale").checked = state.deals;
     $("clear-filters").hidden = state.category === "All" && !state.brand && !state.query.trim() && !state.deals;
     syncUrl();
   }
 
+  // Page numbers: ‹ 1 … 4 5 6 … 52 ›
+  function renderPager(pages) {
+    const nav = $("pager");
+    nav.hidden = pages <= 1;
+    if (pages <= 1) { nav.replaceChildren(); return; }
+    const p = state.page;
+    const nums = [...new Set([1, p - 1, p, p + 1, pages].filter((n) => n >= 1 && n <= pages))].sort((a, b) => a - b);
+    const go = (n) => {
+      state.page = n;
+      renderGrid();
+      scrollToEl($("result-count").closest(".shop-top"));
+    };
+    const btn = (label, n, { cls = "", aria, disabled = false } = {}) => {
+      const b = el("button", { type: "button", className: `pg ${cls}`.trim(), textContent: label, disabled });
+      if (aria) b.setAttribute("aria-label", aria);
+      if (n === p && !cls) b.setAttribute("aria-current", "page");
+      if (!disabled && n !== p) b.onclick = () => go(n);
+      return b;
+    };
+    const parts = [btn("‹", p - 1, { cls: "pg-nav", aria: "Previous page", disabled: p === 1 })];
+    nums.forEach((n, i) => {
+      if (i && n - nums[i - 1] > 1) parts.push(el("span", { className: "pg-gap", textContent: "…" }));
+      parts.push(btn(String(n), n, { aria: `Page ${n}` }));
+    });
+    parts.push(btn("›", p + 1, { cls: "pg-nav", aria: "Next page", disabled: p === pages }));
+    nav.replaceChildren(...parts);
+  }
+
   function clearFilters() {
-    state.brand = ""; state.query = ""; state.deals = false; state.limit = PAGE;
+    state.brand = ""; state.query = ""; state.deals = false; state.page = 1;
     $("brand").value = ""; $("search").value = "";
     if (state.category !== "All") setCategory("All"); else swapGrid();
   }
@@ -440,7 +474,7 @@
   function setCategory(c, { hold = false } = {}) {
     if (c === state.category) return;
     state.category = c;
-    state.limit = PAGE;
+    state.page = 1;
     renderFilters();
     swapPending = true;
     if (!hold) commitSwap();
@@ -452,16 +486,15 @@
     $("search").addEventListener("input", (e) => {
       state.query = e.target.value;
       clearTimeout(searchTimer);
-      searchTimer = setTimeout(() => { state.limit = PAGE; swapGrid(); }, 140);
+      searchTimer = setTimeout(() => { state.page = 1; swapGrid(); }, 140);
     });
     $("brand").append(...BRANDS.map((b) => el("option", { value: b, textContent: b })));
     $("brand").hidden = BRANDS.length === 0;
     $("brand").value = state.brand;
-    $("brand").addEventListener("change", (e) => { state.brand = e.target.value; state.limit = PAGE; swapGrid(); });
-    $("on-sale").addEventListener("change", (e) => { state.deals = e.target.checked; state.limit = PAGE; swapGrid(); });
-    $("more").onclick = () => { state.limit += PAGE; renderGrid(); };
+    $("brand").addEventListener("change", (e) => { state.brand = e.target.value; state.page = 1; swapGrid(); });
+    $("on-sale").addEventListener("change", (e) => { state.deals = e.target.checked; state.page = 1; swapGrid(); });
     $("sort").value = state.sort;
-    $("sort").addEventListener("change", (e) => { state.sort = e.target.value; state.limit = PAGE; swapGrid(); });
+    $("sort").addEventListener("change", (e) => { state.sort = e.target.value; state.page = 1; swapGrid(); });
     $("clear-filters").onclick = clearFilters;
     $("none-clear").onclick = clearFilters;
     $("search-btn").onclick = () => scrollToEl($("shop"), () => $("search").focus({ preventScroll: true }));
