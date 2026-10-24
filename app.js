@@ -456,7 +456,8 @@
   function renderDeals() {
     const deals = PRODUCTS.filter((p) => p.discount).sort((a, b) => b.discount - a.discount);
     const limit = Number($("deals").dataset.limit) || deals.length;
-    $("deals").hidden = deals.length === 0;
+    // On the shop, "Discount now" only shows for All (also when arriving via shop.html?cat=...).
+    $("deals").hidden = deals.length === 0 || (IS_SHOP && state.category !== "All");
     $("deals-grid").replaceChildren(...deals.slice(0, limit).map(cardFor));
   }
 
