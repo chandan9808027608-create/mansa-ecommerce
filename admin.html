@@ -9,15 +9,18 @@
   <style>
     body { background: var(--soft); min-height: 100vh; }
     [hidden] { display: none !important; }
-    .bar { background: #000; color: #fff; position: sticky; top: 0; z-index: 20; }
+    /* Top bar in the logo's colours: blue #0b3d91, orange #ff4000 */
+    .bar { background: #fff; color: #0b3d91; position: sticky; top: 0; z-index: 20; border-bottom: 1px solid #e9e7e2; box-shadow: 0 6px 20px rgba(11, 61, 145, .06); }
     .bar .wrap { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     .bar strong { font-size: 18px; letter-spacing: -0.03em; }
+    .bar .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #0b3d91; }
+    .bar .brand img { height: 36px; width: auto; }
     .tabs { display: flex; gap: 4px; }
-    .tabs button { background: none; border: 0; color: #a1a1a1; font-size: 14px; font-weight: 600; padding: 9px 16px; border-radius: 999px; cursor: pointer; transition: all .2s; }
-    .tabs button:hover { color: #fff; }
-    .tabs button.on { background: #fff; color: #000; }
-    .bar a, .bar .linkbtn { color: #bbb; font-size: 14px; margin-left: 16px; background: none; border: 0; cursor: pointer; }
-    .bar a:hover, .bar .linkbtn:hover { color: #fff; }
+    .tabs button { background: none; border: 0; color: #0b3d91; font-size: 14px; font-weight: 600; padding: 9px 16px; border-radius: 999px; cursor: pointer; transition: all .2s; }
+    .tabs button:hover { color: #ff4000; }
+    .tabs button.on { background: #0b3d91; color: #fff; }
+    .bar a, .bar .linkbtn { color: #0b3d91; font-size: 14px; margin-left: 16px; background: none; border: 0; cursor: pointer; }
+    .bar a:hover, .bar .linkbtn:hover { color: #ff4000; }
 
     .login { max-width: 380px; margin: 96px auto; background: #fff; border-radius: 20px; padding: 32px; box-shadow: 0 20px 60px rgba(0,0,0,.08); }
     .login h1 { font-size: 24px; letter-spacing: -0.03em; margin-bottom: 6px; }
@@ -37,11 +40,11 @@
       padding: 10px 12px; background: #fff; height: auto; font-size: 15px; color: var(--ink);
     }
     textarea { resize: vertical; min-height: 84px; }
-    input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--ink); box-shadow: 0 0 0 3px rgba(0,0,0,.06); }
+    input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--brand-blue); box-shadow: 0 0 0 3px rgba(11, 61, 145, .14); }
     .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
     .switch { display: flex; align-items: center; gap: 10px; font-weight: 600; margin-bottom: 18px; }
-    .switch input { width: 20px; height: 20px; accent-color: #000; }
+    .switch input { width: 20px; height: 20px; accent-color: #0b3d91; }
     .btn.sm { padding: 9px 16px; font-size: 14px; }
     .btn.danger { background: #fff; color: #b91c1c; border-color: #f0c4c4; }
     .status { font-size: 14px; margin-left: 12px; }
@@ -63,8 +66,8 @@
     .tag.sale { background: #fde7dc; color: var(--sale); }
     .acts { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
     .ib { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: #fff; cursor: pointer; font-size: 16px; line-height: 1; display: grid; place-items: center; transition: all .15s; }
-    .ib:hover { border-color: var(--ink); }
-    .ib.on { background: #000; color: #fff; border-color: #000; }
+    .ib:hover { border-color: var(--brand-blue); }
+    .ib.on { background: #0b3d91; color: #fff; border-color: #0b3d91; }
     .ib:disabled { opacity: .3; cursor: default; }
     .empty-note { color: var(--muted); text-align: center; padding: 40px 0; }
 
@@ -75,11 +78,11 @@
     .tile .pic img { width: 100%; height: 100%; object-fit: contain; }
     .tile .cap { padding: 8px 10px; font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; gap: 6px; align-items: center; }
     .tile .cap span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .tile .use { position: absolute; top: 8px; left: 8px; background: #000; color: #fff; font-size: 11px; font-weight: 600; border-radius: 999px; padding: 2px 8px; }
+    .tile .use { position: absolute; top: 8px; left: 8px; background: #0b3d91; color: #fff; font-size: 11px; font-weight: 600; border-radius: 999px; padding: 2px 8px; }
     .tile .del { position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; border-radius: 50%; border: 0; background: rgba(255,255,255,.92); cursor: pointer; font-size: 15px; }
     .tile .del:hover { background: #fde7e7; color: #b91c1c; }
     .picker .tile { cursor: pointer; transition: transform .15s, border-color .15s; }
-    .picker .tile:hover { transform: translateY(-2px); border-color: var(--ink); }
+    .picker .tile:hover { transform: translateY(-2px); border-color: var(--brand-blue); }
 
     .imgbox { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
     .imgbox .prev { width: 120px; height: 120px; border-radius: 14px; background: var(--soft); border: 1px solid var(--line); overflow: hidden; display: grid; place-items: center; color: var(--muted); font-size: 12px; text-align: center; }
@@ -92,12 +95,20 @@
     dialog.adm h2 { font-size: 22px; letter-spacing: -0.02em; margin-bottom: 18px; }
     .dlg-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
     .preview-stage { background: rgba(0,0,0,.55); border-radius: 20px; padding: 40px 28px; }
-    .preview-stage .ad-card { max-width: 720px; margin: 0 auto; }
+    #ad-form.img-mode .txt { display: none; }
+    .preview-stage .ad-card { max-width: 720px; margin: 0 auto; grid-template-columns: 1fr; }
+    .preview-stage .ad-visual { min-height: 260px; }
     .ad-layout { display: grid; grid-template-columns: 420px 1fr; gap: 24px; align-items: start; }
     .imgrow { display: flex; gap: 10px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
     .imgrow img { width: 56px; height: 56px; object-fit: cover; border-radius: 10px; background: var(--soft); }
     .hint { font-size: 13px; color: var(--muted); margin-top: 12px; }
     .toast { z-index: 100; }
+    .order { border-top: 1px solid var(--line); padding: 14px 0; display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; }
+    .order:first-child { border-top: 0; }
+    .order .who { font-weight: 600; }
+    .order .meta, .order .items { font-size: 13px; color: var(--muted); }
+    .order .items { grid-column: 1 / -1; }
+    .order .side { text-align: right; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
     @media (max-width: 900px) {
       .row { grid-template-columns: 56px 1fr auto; }
       .row .cat, .row .pr { display: none; }
@@ -108,11 +119,12 @@
 </head>
 <body>
   <div class="bar"><div class="wrap">
-    <strong>Mansa Admin</strong>
+    <strong class="brand"><img src="images/logo.png" alt="Mansa Technology"> Admin</strong>
     <nav class="tabs" id="tabs" hidden>
       <button data-tab="products" class="on">Products</button>
       <button data-tab="images">Site images</button>
       <button data-tab="ad">Ad popup</button>
+      <button data-tab="orders" id="orders-tab" hidden>Orders</button>
     </nav>
     <span><a href="./" target="_blank" rel="noopener">View store ↗</a><button class="linkbtn" id="logout" hidden>Sign out</button></span>
   </div></div>
@@ -120,7 +132,8 @@
   <!-- Sign in -->
   <form class="login" id="login">
     <h1>Sign in</h1>
-    <p>Enter the admin password to manage the store.</p>
+    <p id="login-hint">Enter the admin password to manage the store.</p>
+    <label class="f" id="email-wrap" hidden>Email <input type="email" id="email" autocomplete="username"></label>
     <label class="f">Password <input type="password" id="password" autocomplete="current-password" required autofocus></label>
     <button class="btn block" type="submit">Sign in</button>
     <div class="err-text" id="login-err"></div>
@@ -180,12 +193,15 @@
           <h2>Store ad popup</h2>
           <p class="sub">Shown to visitors as soon as the store opens.</p>
           <label class="switch"><input type="checkbox" name="enabled"> Show the ad to visitors</label>
-          <label class="f">Badge <small>(small label, optional)</small><input type="text" name="badge" maxlength="30" placeholder="e.g. New offer"></label>
-          <label class="f">Headline<input type="text" name="title" maxlength="90" required placeholder="e.g. 10% off all printers"></label>
-          <label class="f">Message <small>(optional)</small><textarea name="text" maxlength="300" placeholder="A short line of detail"></textarea></label>
+          <label class="f">Layout
+            <select class="f" name="layout"><option value="card">Card with text</option><option value="image">Image only (no text)</option></select></label>
+          <p class="sub img-only-hint" hidden>Only the image is shown. Upload one below; add a link if clicking it should open a page.</p>
+          <label class="f txt">Badge <small>(small label, optional)</small><input type="text" name="badge" maxlength="30" placeholder="e.g. New offer"></label>
+          <label class="f txt">Headline<input type="text" name="title" maxlength="90" required placeholder="e.g. 10% off all printers"></label>
+          <label class="f txt">Message <small>(optional)</small><textarea name="text" maxlength="300" placeholder="A short line of detail"></textarea></label>
           <div class="two">
-            <label class="f">Button text <input type="text" name="buttonLabel" maxlength="30" placeholder="Shop now"></label>
-            <label class="f">Button link <input type="text" name="buttonLink" placeholder="#shop or https://…"></label>
+            <label class="f txt">Button text <input type="text" name="buttonLabel" maxlength="30" placeholder="Shop now"></label>
+            <label class="f">Link <small class="link-note">(button)</small><input type="text" name="buttonLink" placeholder="#shop or https://…"></label>
           </div>
           <div class="f" style="font-size:13px;font-weight:500">Image <small style="color:var(--muted);font-weight:400">(optional)</small>
             <div class="imgrow">
@@ -196,7 +212,7 @@
             </div>
           </div>
           <div class="two" style="margin-top:14px">
-            <label class="f">Style <select class="f" name="theme"><option value="light">Light</option><option value="dark">Dark</option></select></label>
+            <label class="f txt">Style <select class="f" name="theme"><option value="light">Light</option><option value="dark">Dark</option></select></label>
             <label class="f">Show
               <select class="f" name="frequency">
                 <option value="session">Once per visit</option><option value="day">Once per day</option><option value="visit">Every page load</option>
@@ -214,13 +230,31 @@
         </div>
       </div>
     </section>
+
+    <!-- Orders (Supabase only) -->
+    <section id="tab-orders" hidden>
+      <div class="box">
+        <div class="head">
+          <h2>Orders <span class="tag" id="order-count"></span></h2>
+          <div class="toolbar">
+            <select class="f" id="order-filter" aria-label="Filter orders">
+              <option value="">All orders</option><option value="new">New</option><option value="confirmed">Confirmed</option>
+              <option value="done">Done</option><option value="cancelled">Cancelled</option>
+            </select>
+            <button class="btn sm ghost" id="orders-refresh">Refresh</button>
+          </div>
+        </div>
+        <div id="order-rows"></div>
+      </div>
+      <p class="hint">Orders placed on the website are saved here and also sent to you on WhatsApp. Prices are as shown to the customer at checkout.</p>
+    </section>
   </main>
 
   <!-- Product editor -->
   <dialog class="adm" id="prod-dlg">
     <form id="prod-form">
       <h2 id="prod-title">Add product</h2>
-      <label class="f">Name <input type="text" name="name" maxlength="120" required placeholder="e.g. Wireless Keyboard"></label>
+      <label class="f">Name <input type="text" name="name" maxlength="300" required placeholder="e.g. Wireless Keyboard"></label>
       <label class="f">Brand <input type="text" name="brand" list="brand-list" maxlength="40" placeholder="e.g. HP, Hikvision"></label>
       <datalist id="brand-list"></datalist>
       <div class="two">
@@ -233,7 +267,7 @@
         <label class="f">Regular price (NPR) <input type="number" name="price" min="0" step="1" required></label>
         <label class="f">Discount % <small id="disc-note">(optional)</small><input type="number" name="discount" min="0" max="99" step="0.5" placeholder="e.g. 10"></label>
       </div>
-      <label class="f">Description <textarea name="description" maxlength="400" placeholder="One or two sentences"></textarea></label>
+      <label class="f">Description <textarea name="description" maxlength="1000" rows="5" placeholder="One feature per line, e.g.&#10;1/2.8&quot; Progressive Scan CMOS&#10;IR range: up to 30 m"></textarea></label>
       <label class="f">Specs <small>(one per line, as “Label: value”)</small>
         <textarea name="specs" rows="4" placeholder="Resolution: 1080p&#10;Night vision: 10 m"></textarea></label>
       <div class="f" style="font-size:13px;font-weight:500">Image
@@ -277,6 +311,8 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>window.MANSA_ADMIN = true;</script>
+  <script src="config.js"></script>
+  <script src="data.js"></script>
   <script src="ad.js"></script>
   <script>
   (() => {
@@ -288,8 +324,7 @@
     };
     const money = (n) => `NPR ${Number(n).toLocaleString("en-IN")}`;
 
-    let token = null;
-    try { token = sessionStorage.getItem("mansa-admin-token"); } catch {}
+    const DB = window.MansaData;
     let store = { featured: "", heroImage: "", products: [] };
     let media = [];
     let ad = {};
@@ -297,18 +332,22 @@
     let editing = null;      // product being edited (null = new)
     let prodImage = "";
 
-    // ---------- API ----------
-    const call = async (path, body) => {
-      const r = await fetch(path, {
-        method: body === undefined ? "GET" : "POST",
-        headers: { ...(body !== undefined ? { "Content-Type": "application/json" } : {}), ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: body === undefined ? undefined : JSON.stringify(body),
-      });
-      const data = await r.json().catch(() => ({}));
-      if (r.status === 401 && token) signOut("Session expired. Please sign in again.");
-      if (!r.ok) throw new Error(data.error || "Request failed");
-      return data;
+    // ---------- API (data.js: Supabase, or the local server) ----------
+    // Wraps a data call: an expired session sends you back to sign in.
+    const guard = async (fn) => {
+      try { return await fn(); }
+      catch (err) { if (err.auth) signOut("Session expired. Please sign in again."); throw err; }
     };
+    // Warn straight away when the page was opened as a file: sign-in can't work like that.
+    if (DB.mode === "local" && location.protocol === "file:") {
+      $("login-err").textContent = "Open this page at http://localhost:8080/admin.html (with server.py running), not as a file.";
+    }
+    if (DB.mode === "supabase") {
+      $("email-wrap").hidden = false;
+      $("email").required = true;
+      $("login-hint").textContent = "Sign in with your admin email and password.";
+      $("orders-tab").hidden = false;
+    }
 
     let toastTimer;
     const toast = (msg) => {
@@ -323,20 +362,16 @@
       $("login").hidden = on; $("editor").hidden = !on; $("tabs").hidden = !on; $("logout").hidden = !on;
     };
     function signOut(msg) {
-      token = null;
-      try { sessionStorage.removeItem("mansa-admin-token"); } catch {}
+      DB.signOut().catch(() => {});
       show(false);
       $("login-err").textContent = msg || "";
     }
 
     async function boot() {
-      const [s, a] = await Promise.all([
-        fetch("store.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : {}).catch(() => ({})),
-        fetch("ad.json", { cache: "no-store" }).then((r) => r.ok ? r.json() : {}).catch(() => ({})),
-      ]);
+      const [s, a] = await Promise.all([DB.loadStore(), DB.loadAd().catch(() => ({}))]);
       store = { featured: s.featured || "", heroImage: s.heroImage || "", products: s.products || [] };
       ad = a || {};
-      await refreshMedia();
+      media = await guard(() => DB.listMedia());  // also confirms the session is still valid
       renderProducts(); renderHero(); fillAd();
       show(true);
     }
@@ -345,9 +380,7 @@
       e.preventDefault();
       $("login-err").textContent = "";
       try {
-        const d = await call("/api/login", { password: $("password").value });
-        token = d.token;
-        try { sessionStorage.setItem("mansa-admin-token", token); } catch {}
+        await DB.signIn({ email: $("email").value.trim(), password: $("password").value });
         $("password").value = "";
         await boot();
       } catch (err) { $("login-err").textContent = err.message; }
@@ -356,18 +389,13 @@
 
     document.querySelectorAll("#tabs button").forEach((b) => b.addEventListener("click", () => {
       document.querySelectorAll("#tabs button").forEach((x) => x.classList.toggle("on", x === b));
-      ["products", "images", "ad"].forEach((t) => { $(`tab-${t}`).hidden = t !== b.dataset.tab; });
+      ["products", "images", "ad", "orders"].forEach((t) => { $(`tab-${t}`).hidden = t !== b.dataset.tab; });
       if (b.dataset.tab === "images") renderLibrary();
+      if (b.dataset.tab === "orders") loadOrders();
     }));
 
     // ---------- images: upload (with downscale) + library ----------
     const MAX_SIDE = 1600;
-    const fileToB64 = (blob) => new Promise((res, rej) => {
-      const fr = new FileReader();
-      fr.onload = () => res(String(fr.result).split(",")[1]);
-      fr.onerror = rej;
-      fr.readAsDataURL(blob);
-    });
 
     async function prepare(file) {
       if (file.type === "image/gif" || !("createImageBitmap" in window)) return file;
@@ -386,12 +414,11 @@
 
     async function uploadOne(file) {
       const blob = await prepare(file);
-      const d = await call("/api/upload", { data: await fileToB64(blob) });
-      return d.url;
+      return guard(() => DB.upload(blob));
     }
 
     async function refreshMedia() {
-      try { media = (await call("/api/media")).items; } catch { media = []; }
+      try { media = await guard(() => DB.listMedia()); } catch { media = []; }
     }
 
     // Opens the hidden file input and resolves the uploaded URLs
@@ -434,7 +461,7 @@
           e.stopPropagation();
           const inUse = usedUrls().has(m.url);
           if (!confirm(inUse ? "This image is in use. Deleting it will leave a blank image. Delete anyway?" : "Delete this image?")) return;
-          try { await call("/api/media/delete", { name: m.name }); await refreshMedia(); renderLibrary(); toast("Image deleted"); }
+          try { await guard(() => DB.deleteMedia(m)); await refreshMedia(); renderLibrary(); toast("Image deleted"); }
           catch (err) { toast(err.message); }
         };
         t.append(d);
@@ -465,7 +492,7 @@
     // ---------- products ----------
     async function saveStore(msg = "Saved") {
       try {
-        store = await call("/api/store", store);
+        store = await guard(() => DB.saveStore(store));
         renderProducts(); renderHero();
         toast(msg);
         return true;
@@ -483,7 +510,10 @@
       $("prod-count").textContent = store.products.length;
       const list = store.products.map((p, i) => ({ p, i }))
         .filter(({ p }) => !q || `${p.name} ${p.brand || ""} ${p.category}`.toLowerCase().includes(q));
-      $("prod-rows").replaceChildren(...(list.length ? list.map(({ p, i }) => {
+      // Long catalogues: only draw the first rows; searching narrows the list.
+      const SHOWN = 100;
+      const more = list.length > SHOWN ? el("p", { className: "empty-note", textContent: `Showing the first ${SHOWN} of ${list.length.toLocaleString("en-IN")}. Search by name, brand or category to find others.` }) : null;
+      $("prod-rows").replaceChildren(...(list.length ? list.slice(0, SHOWN).map(({ p, i }) => {
         const up = el("button", { className: "ib", textContent: "↑", title: "Move up", disabled: i === 0 || !!q });
         const down = el("button", { className: "ib", textContent: "↓", title: "Move down", disabled: i === store.products.length - 1 || !!q });
         const star = el("button", { className: "ib" + (store.featured === p.id ? " on" : ""), textContent: "★", title: "Feature in hero" });
@@ -498,14 +528,14 @@
           await saveStore("Product deleted");
         };
         const price = el("div", { className: "pr", textContent: money(finalPrice(p.price, p.discount)) });
-        if (p.discount) price.append(el("s", { textContent: money(p.price) }), ` −${p.discount}%`);
+        if (p.discount) price.append(el("s", { textContent: money(p.price) }), ` −${Math.round(p.discount)}%`);
         return el("div", { className: "row" },
           thumb(p),
           el("div", { className: "nm" }, p.name, el("small", { textContent: p.id })),
           el("div", { className: "cat" }, el("span", { className: "tag", textContent: p.category }), p.badge ? el("span", { className: "tag" + (p.badge === "Sale" ? " sale" : ""), textContent: p.badge, style: "margin-left:6px" }) : null),
           price,
           el("div", { className: "acts" }, star, up, down, edit, del));
-      }) : [el("p", { className: "empty-note", textContent: q ? "No products match." : "No products yet. Add your first one." })]));
+      }).concat(more || []) : [el("p", { className: "empty-note", textContent: q ? "No products match." : "No products yet. Add your first one." })]));
     }
     $("prod-search").addEventListener("input", renderProducts);
 
@@ -559,7 +589,8 @@
       f.elements.category.value = p ? p.category : (store.products[0]?.category || "");
       f.elements.badge.value = p ? (p.badge || "") : "";
       f.elements.price.value = p ? p.price : "";
-      f.elements.discount.value = p && p.discount ? p.discount : "";
+      // Imported discounts are precise (so sale prices stay exact); show them rounded.
+      f.elements.discount.value = p && p.discount ? Math.round(p.discount * 100) / 100 : "";
       discNote();
       f.elements.description.value = p ? (p.description || "") : "";
       f.elements.specs.value = p && p.specs ? p.specs.map(([k, v]) => `${k}: ${v}`).join("\n") : "";
@@ -591,7 +622,8 @@
         price: Number(f.price.value) || 0,
         description: f.description.value.trim(),
       };
-      const disc = Number(f.discount.value);
+      let disc = Number(f.discount.value);
+      if (editing && editing.discount && disc === Math.round(editing.discount * 100) / 100) disc = editing.discount;  // unchanged: keep exact
       if (disc > 0 && disc < 100) item.discount = disc;
       if (f.badge.value) item.badge = f.badge.value;
       if (prodImage) {
@@ -643,7 +675,15 @@
 
     // ---------- ad popup ----------
     const adForm = $("ad-form");
-    const AD_FIELDS = ["badge", "title", "text", "buttonLabel", "buttonLink", "theme", "frequency", "startDate", "endDate"];
+    const AD_FIELDS = ["layout", "badge", "title", "text", "buttonLabel", "buttonLink", "theme", "frequency", "startDate", "endDate"];
+    // Image-only layout hides the text fields and makes the headline optional.
+    function syncLayout() {
+      const img = adForm.elements.layout.value === "image";
+      adForm.classList.toggle("img-mode", img);
+      adForm.elements.title.required = !img;
+      adForm.querySelector(".img-only-hint").hidden = !img;
+      adForm.querySelector(".link-note").textContent = img ? "(optional, opens when the image is clicked)" : "(button)";
+    }
     const readAd = () => {
       const out = { enabled: adForm.elements.enabled.checked, image: adImage };
       AD_FIELDS.forEach((k) => { out[k] = adForm.elements[k].value; });
@@ -653,25 +693,64 @@
     function drawAd() { $("ad-preview").replaceChildren(window.MansaAd.build(readAd())); }
     function fillAd() {
       adForm.elements.enabled.checked = !!ad.enabled;
-      AD_FIELDS.forEach((k) => { adForm.elements[k].value = ad[k] || (k === "theme" ? "light" : k === "frequency" ? "session" : ""); });
+      AD_FIELDS.forEach((k) => { adForm.elements[k].value = ad[k] || ({ theme: "light", frequency: "session", layout: "card" }[k] || ""); });
+      syncLayout();
       adImage = ad.image || "";
       syncAdImage(); drawAd();
     }
-    adForm.addEventListener("input", drawAd);
+    adForm.addEventListener("input", () => { syncLayout(); drawAd(); });
     $("ad-upload").onclick = async () => { const u = await chooseFiles(false); if (u[0]) { adImage = u[0]; syncAdImage(); drawAd(); } };
     $("ad-pick").onclick = async () => { const u = await pickImage(); if (u) { adImage = u; syncAdImage(); drawAd(); } };
     $("ad-clear").onclick = () => { adImage = ""; syncAdImage(); drawAd(); };
     adForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (adForm.elements.layout.value === "image" && !adImage) {
+        $("ad-status").textContent = "Add an image first: the Image only layout shows just the picture."; $("ad-status").className = "status err";
+        return;
+      }
       $("ad-save").disabled = true;
       try {
-        ad = await call("/api/ad", readAd());
+        ad = await guard(() => DB.saveAd(readAd()));
         $("ad-status").textContent = "Saved. Live on the store now."; $("ad-status").className = "status ok";
       } catch (err) { $("ad-status").textContent = err.message; $("ad-status").className = "status err"; }
       $("ad-save").disabled = false;
     });
 
-    if (token) boot().catch(() => signOut());
+    // ---------- orders ----------
+    let orders = [];
+    const STATUS = { new: "New", confirmed: "Confirmed", done: "Done", cancelled: "Cancelled" };
+    async function loadOrders() {
+      $("order-rows").replaceChildren(el("p", { className: "empty-note", textContent: "Loading…" }));
+      try { orders = (await guard(() => DB.listOrders())) || []; }
+      catch (err) { orders = []; toast(err.message); }
+      renderOrders();
+    }
+    function renderOrders() {
+      const f = $("order-filter").value;
+      const list = orders.filter((o) => !f || o.status === f);
+      $("order-count").textContent = orders.filter((o) => o.status === "new").length ? `${orders.filter((o) => o.status === "new").length} new` : orders.length;
+      $("order-rows").replaceChildren(...(list.length ? list.map((o) => {
+        const sel = el("select", { className: "f" }, ...Object.entries(STATUS).map(([v, t]) => el("option", { value: v, textContent: t })));
+        sel.value = o.status;
+        sel.onchange = async () => {
+          try { await guard(() => DB.setOrderStatus(o.id, sel.value)); o.status = sel.value; renderOrders(); toast("Order updated"); }
+          catch (err) { sel.value = o.status; toast(err.message); }
+        };
+        const when = new Date(o.created_at).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+        return el("div", { className: "order" },
+          el("div", {},
+            el("div", { className: "who", textContent: `#${o.id} · ${o.name}` }),
+            el("div", { className: "meta" },
+              el("a", { href: `tel:${o.phone.replace(/[^+\d]/g, "")}`, textContent: o.phone }),
+              ` · ${when} · ${o.method === "pickup" ? "Pick up" : `Deliver to: ${o.address || "(no address)"}`}`)),
+          el("div", { className: "side" }, el("strong", { textContent: money(o.total) }), sel),
+          el("div", { className: "items", textContent: o.items.map((i) => `${i.qty} × ${i.name}`).join(", ") + (o.note ? ` · Note: ${o.note}` : "") }));
+      }) : [el("p", { className: "empty-note", textContent: orders.length ? "No orders with this status." : "No orders yet." })]));
+    }
+    $("order-filter").onchange = renderOrders;
+    $("orders-refresh").onclick = loadOrders;
+
+    DB.restore().then((ok) => { if (ok) return boot(); }).catch(() => signOut());
   })();
   </script>
 </body>

@@ -12,18 +12,24 @@
 
   <header class="header">
     <div class="wrap header-inner">
-      <a class="logo" href="#top">Mansa<span>.</span></a>
+      <a class="logo" href="#top" aria-label="Mansa Technology home"><img src="images/logo.png" alt="Mansa Technology" width="700" height="303"></a>
       <nav class="nav" aria-label="Main">
-        <a href="#shop" data-cat="All">All</a>
-        <a href="#shop" data-cat="Cameras">Cameras</a>
-        <a href="#shop" data-cat="Printers">Printers</a>
-        <a href="#shop" data-cat="Toner & Ink">Toner &amp; Ink</a>
-        <a href="#shop" data-cat="Computer Hardware">Hardware</a>
+        <a href="shop.html">All</a>
+        <a href="shop.html?cat=Laptops">Laptops</a>
+        <a href="shop.html?cat=CCTV+%26+Security">CCTV</a>
+        <a href="shop.html?cat=Networking">Networking</a>
+        <a href="shop.html?cat=PC+Components">PC Parts</a>
+        <a href="shop.html?cat=Accessories">Accessories</a>
         <a href="#services" class="plain">Services</a>
       </nav>
       <div class="actions">
-        <button class="icon" id="search-btn" aria-label="Search products">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <a class="hdr-cta" id="hdr-call" href="#">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
+          Call us
+        </a>
+        <button class="icon search-pill" id="search-btn" aria-label="Search products">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span class="sp-text">Search products…</span>
         </button>
         <button class="icon" id="open-cart" aria-label="Open bag">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
@@ -40,7 +46,7 @@
           <h1>Reliable hardware for work that <em>doesn't stop.</em></h1>
           <p>Computers, printers, CCTV, networking and more. Buy the hardware, and get it installed and serviced by the same team.</p>
           <div class="hero-cta">
-            <a class="btn lg" href="#shop" data-cat="All">Shop all products <span aria-hidden="true">→</span></a>
+            <a class="btn lg" href="shop.html">Shop all products <span aria-hidden="true">→</span></a>
             <a class="btn lg ghost" href="#services">Our services</a>
           </div>
           <ul class="checks">
@@ -90,45 +96,34 @@
     </section>
 
     <section class="wrap shop" id="shop">
-      <div class="deals" id="deals" hidden>
-        <h2>Discount now <small>Limited-time prices</small></h2>
+      <div class="deals" id="deals" data-limit="4" hidden>
+        <div class="shop-top">
+          <h2>Discount now <small>Limited-time prices</small></h2>
+          <a class="btn sm ghost" href="shop.html?deals=1&amp;sort=discount">See all deals →</a>
+        </div>
         <div class="grid" id="deals-grid"></div>
       </div>
       <div class="shop-top">
-        <h2>Shop <small id="result-count"></small></h2>
-        <div class="tools">
-          <label class="search">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-            <input id="search" type="search" placeholder="Search products or brands" autocomplete="off">
-          </label>
-          <select id="brand" aria-label="Filter by brand">
-            <option value="">All brands</option>
-          </select>
-          <select id="sort" aria-label="Sort products">
-            <option value="featured">Featured</option>
-            <option value="low">Price: low to high</option>
-            <option value="high">Price: high to low</option>
-            <option value="name">Name: A to Z</option>
-          </select>
-        </div>
+        <h2>Popular products</h2>
+        <a class="btn sm ghost" href="shop.html">View all products →</a>
       </div>
-      <div class="chips" id="filters" role="tablist" aria-label="Categories"></div>
-      <div class="grid" id="grid"></div>
-      <p class="none" id="none" hidden>No products match your search.</p>
+      <div class="grid" id="home-grid"></div>
+      <div class="shop-more"><a class="btn lg" href="shop.html">Browse the full shop <span aria-hidden="true">→</span></a></div>
     </section>
   </main>
 
   <footer class="footer" id="contact">
     <div class="wrap foot-grid">
       <div>
-        <a class="logo" href="#top">Mansa<span>.</span></a>
+        <a class="logo" href="#top" aria-label="Mansa Technology home"><img src="images/logo.png" alt="Mansa Technology" width="700" height="303"></a>
         <p>Mansa Technology Pvt. Ltd.<br>IT solutions and service provider.</p>
       </div>
       <div><h4>Shop</h4>
-        <a href="#shop" data-cat="Cameras">Cameras</a>
-        <a href="#shop" data-cat="Printers">Printers</a>
-        <a href="#shop" data-cat="Toner & Ink">Toner &amp; Ink</a>
-        <a href="#shop" data-cat="Computer Hardware">Hardware</a>
+        <a href="shop.html?cat=Laptops">Laptops</a>
+        <a href="shop.html?cat=Monitors">Monitors</a>
+        <a href="shop.html?cat=CCTV+%26+Security">CCTV &amp; Security</a>
+        <a href="shop.html?cat=Networking">Networking</a>
+        <a href="shop.html?cat=Storage">Storage</a>
       </div>
       <div><h4>Visit us</h4>
         <span id="open-status" class="open-status"></span>
@@ -212,7 +207,10 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="config.js"></script>
+  <script src="data.js"></script>
   <script src="products.js"></script>
+  <script src="install.js"></script>
   <script src="app.js"></script>
   <script src="ad.js"></script>
 </body>

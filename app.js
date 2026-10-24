@@ -1,17 +1,14 @@
 (async () => {
   const { STORE } = window;
-  // The catalogue lives in store.json (edited from admin.html)
+  // The catalogue comes from Supabase, or store.json on the local server (see data.js).
   let data = {};
-  try {
-    const r = await fetch("store.json", { cache: "no-store" });
-    if (r.ok) data = await r.json();
-  } catch {}
+  try { data = await window.MansaData.loadStore(); } catch (e) { console.warn("Could not load products:", e.message); }
   // A product's `price` is its regular price; `discount` (percent) lowers it. After this,
   // `price` is what the customer pays and `was` the struck-through regular price.
   const PRODUCTS = (Array.isArray(data.products) ? data.products : []).map((p) => {
     const d = Number(p.discount) || 0;
     if (d <= 0 || d >= 100) return { ...p, discount: 0 };
-    return { ...p, discount: d, was: p.price, price: Math.round(p.price * (1 - d / 100)), badge: p.badge || `-${d}%` };
+    return { ...p, discount: d, was: p.price, price: Math.round(p.price * (1 - d / 100)), badge: p.badge || `-${Math.max(1, Math.round(d))}%` };
   });
   const isSale = (p) => Boolean(p.discount) || p.badge === "Sale";
   const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -21,7 +18,10 @@
 
   let cart = {};
   try { cart = JSON.parse(localStorage.getItem(CART_KEY)) || {}; } catch { cart = {}; }
-  const state = { category: "All", brand: "", query: "", sort: "featured" };
+  const PAGE = 48;  // products shown per "page" on the shop
+  const state = { category: "All", brand: "", query: "", sort: "featured", deals: false, limit: PAGE };
+  // index.html shows a short teaser; shop.html has the full catalogue (#grid).
+  const IS_SHOP = Boolean(document.getElementById("grid"));
 
   const save = () => { try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch {} };
   const find = (id) => PRODUCTS.find((p) => p.id === id);
@@ -40,12 +40,94 @@
     "Toner & Ink": `<svg viewBox="0 0 200 200" ${S}><rect x="22" y="70" width="156" height="70" rx="35"/><path d="M62 70v70M138 70v70"/><rect x="82" y="52" width="36" height="18" rx="5"/><circle cx="100" cy="105" r="14" ${F} opacity=".14"/><path d="M100 96c5 6 8 10 8 14a8 8 0 0 1-16 0c0-4 3-8 8-14Z" ${F} stroke="none"/></svg>`,
     "Computer Hardware": `<svg viewBox="0 0 200 200" ${S}><rect x="54" y="54" width="92" height="92" rx="14"/><rect x="78" y="78" width="44" height="44" rx="8" ${F} opacity=".14"/><rect x="78" y="78" width="44" height="44" rx="8"/><path d="M78 54V32M100 54V32M122 54V32M78 146v22M100 146v22M122 146v22M54 78H32M54 100H32M54 122H32M146 78h22M146 100h22M146 122h22"/></svg>`,
   };
-  const artFor = (category) => ART[category] || ART["Computer Hardware"];
-  const CATS = [...new Set(PRODUCTS.map((p) => p.category))];
+  const artFor = (category) => ART[category] || ART[{ "CCTV & Security": "Cameras", Cameras: "Cameras" }[category]] || ART["Computer Hardware"];
+
+  // Products without a photo get a matching illustration (first rule that fits wins).
+  const PLACEHOLDERS = [
+    [/\b(dvr|nvr|xvr)\b/i, "hik-dvr"],
+    [/\b(dome|turret|eyeball)\b/i, "hik-dome", /CCTV/],
+    [/\b(bullet|ptz|ip camera|cctv|camera)\b/i, "hik-bullet", /CCTV/],
+    [/webcam/i, "cam4"],
+    [/\b(toner|cartridge|drum unit)\b/i, "ton1"],
+    [/\b(ink bottle|ink refill|refill ink|\bink\b)/i, "ton3"],
+    [/\b(receipt|thermal|barcode|label) printer|pos printer/i, "prn3"],
+    [/\b(ink ?tank|inkjet|all[- ]in[- ]one printer)/i, "prn2"],
+    [/printer|laserjet|\bmfp\b/i, "prn1"],
+    [/\b(macbook|laptop|notebook|chromebook|vivobook|zenbook|ideapad|thinkpad|inspiron|vostro|latitude|pavilion|aspire|nitro|predator|swift|rog|tuf|legion|yoga)\b/i, "laptop", /Laptops|Apple/],
+    [/\b(iphone|ipad|phone|tablet|\btab\b|galaxy tab)\b/i, "phone"],
+    [/\b(smart ?watch|watch|fitness band)\b/i, "watch"],
+    [/\b(imac|desktop|all[- ]in[- ]one|aio|mini pc|tower)\b/i, "desktop", /Desktops|Apple/],
+    [/\b(keyboard|mouse|combo)\b/i, "hw4"],
+    [/\b(monitor|display)\b/i, "hw3", /Monitors/],
+    [/\b(router|switch|access point|wi-?fi|poe|lan|ethernet|rj45|cat ?6|fiber|ont|onu)\b/i, "hw5", /Networking/],
+    [/\b(ram|ddr\d|so-?dimm)\b/i, "hw2"],
+    [/\b(ssd|hdd|nvme|hard (disk|drive)|pen ?drive|flash drive|memory card|micro ?sd|sd card|storage)\b/i, "hw1"],
+    [/\b(ups|inverter|battery|stabili[sz]er|surge|power strip)\b/i, "hw6"],
+    [/\b(headphones?|headset|earbuds?|earphones?|speakers?|soundbar|microphone|\bmic\b|airpods|tws)\b/i, "audio"],
+    [/\b(charger|adapter|cable|hub|dock|power ?bank|converter|usb)\b/i, "charger"],
+  ];
+  // Used when nothing in the name matches.
+  const CATEGORY_PLACEHOLDER = { Laptops: "laptop", Monitors: "hw3", Networking: "hw5", Storage: "hw1", "Power & UPS": "hw6",
+    Audio: "audio", Desktops: "desktop", "Chargers & Adapters": "charger" };
+  const phCache = new Map();
+  const placeholderFor = (p) => {
+    if (!phCache.has(p.id)) {
+      const hit = PLACEHOLDERS.find(([re, , cat]) => re.test(p.name) && (!cat || cat.test(p.category)));
+      const img = hit ? hit[1] : CATEGORY_PLACEHOLDER[p.category];
+      phCache.set(p.id, img ? `images/${img}.svg` : null);
+    }
+    return phCache.get(p.id);
+  };
+
+  // Categories, biggest first, "Other" last.
+  const catSize = PRODUCTS.reduce((m, p) => m.set(p.category, (m.get(p.category) || 0) + 1), new Map());
+  const CATS = [...catSize.keys()].sort((a, b) => (a === "Other") - (b === "Other") || catSize.get(b) - catSize.get(a));
+  const BRANDS = [...new Set(PRODUCTS.map((p) => p.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const SORTS = ["featured", "discount", "low", "high", "name"];
+
+  // Shop filters live in the URL (shop.html?cat=Cameras&brand=Hikvision&q=dome&sort=low),
+  // so results can be bookmarked and shared, and home-page links land pre-filtered.
+  if (IS_SHOP) {
+    const u = new URLSearchParams(location.search);
+    if (CATS.includes(u.get("cat"))) state.category = u.get("cat");
+    if (BRANDS.includes(u.get("brand"))) state.brand = u.get("brand");
+    if (SORTS.includes(u.get("sort"))) state.sort = u.get("sort");
+    state.query = (u.get("q") || "").slice(0, 80);
+    state.deals = u.get("deals") === "1";
+  }
+  function syncUrl() {
+    const u = new URLSearchParams();
+    if (state.category !== "All") u.set("cat", state.category);
+    if (state.brand) u.set("brand", state.brand);
+    if (state.query.trim()) u.set("q", state.query.trim());
+    if (state.deals) u.set("deals", "1");
+    if (state.sort !== "featured") u.set("sort", state.sort);
+    const qs = u.toString();
+    history.replaceState(null, "", location.pathname + (qs ? `?${qs}` : "") + location.hash);
+  }
 
   // ---------- Static content ----------
   document.title = `${STORE.name} — Cameras, Printers & Computer Hardware`;
-  $("announce").textContent = `${STORE.address}  ·  ${STORE.hours}  ·  ${STORE.phone}`;
+  const tel = `tel:${STORE.phone.replace(/[^+\d]/g, "")}`;
+  const IC = {
+    pin: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+    clock: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+    phone: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>',
+  };
+  IC.chat = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>';
+  $("announce").innerHTML = `<div class="wrap an-wrap">
+      <span class="an-group"><span class="an-item an-addr">${IC.pin}${esc(STORE.address)}</span>
+        <span class="an-item an-hours">${IC.clock}${esc(STORE.hours)}</span></span>
+      <span class="an-group"><a class="an-item an-phone" href="${tel}">${IC.phone}${esc(STORE.phone)}</a>
+        <a class="an-item an-wa" href="https://wa.me/${STORE.whatsapp}" target="_blank" rel="noopener">${IC.chat}WhatsApp</a></span>
+    </div>`;
+  if ($("hdr-call")) $("hdr-call").href = tel;
+
+  // Header: stronger shadow once the page scrolls
+  const hdr = document.querySelector(".header");
+  const onScroll = () => hdr.classList.toggle("scrolled", scrollY > 8);
+  addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
   $("legal").textContent = `© ${new Date().getFullYear()} ${STORE.legalName}`;
   $("wa-link").href = `https://wa.me/${STORE.whatsapp}`;
   $("phone").href = `tel:${STORE.phone.replace(/[^+\d]/g, "")}`;
@@ -70,20 +152,33 @@
 
   // Hero: one featured product
   const hero = find(data.featured) || find(STORE.featured) || PRODUCTS[0];
-  if (hero) {
-    const ICON_CLOCK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
-    const ICON_PIN = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.200 7-11a7 7 0 0 0-14 0c0 4.800 7 11 7 11z"/><circle cx="12" cy="10" r="2.500"/></svg>';
+  if (hero && $("feature")) {
     const f = $("feature");
     f.className = "feature";
-    const heroImg = data.heroImage || hero.image;
-    const heroArt = heroImg ? `<img src="${esc(heroImg)}" alt="">` : artFor(hero.category);
-    const slices = Array.from({ length: 6 }, (_, i) => `<span class="slice" style="--i:${i}">${heroArt}</span>`).join("");
+    const heroImg = data.heroImage || hero.image || placeholderFor(hero);
+    const artHtml = (src, cat) => (src ? `<img src="${esc(src)}" alt="" draggable="false">` : artFor(cat));
+
+    // One floating card per category around the featured product, preferring
+    // products with a real photo, never repeating the hero product.
+    const pickFor = (cat) => {
+      const pool = PRODUCTS.filter((p) => p.category === cat && p.id !== hero.id);
+      return pool.find((p) => /\.(jpe?g|png|webp)$/i.test(p.image || "")) || pool.find((p) => p.badge === "Best seller")
+        || pool.find((p) => p.discount && placeholderFor(p)) || pool.find((p) => placeholderFor(p)) || pool[0];
+    };
+    const LABEL = { "CCTV & Security": "CCTV & security", Laptops: "Laptops", Monitors: "Monitors", "PC Components": "PC parts", Networking: "Networking" };
+    const tiles = ["CCTV & Security", "Laptops", "Monitors"].map(pickFor).filter(Boolean);
+    const tileHtml = tiles.map((p, i) => `
+        <button type="button" class="orbit-card oc-${i + 1}" data-id="${esc(p.id)}" aria-label="${esc(p.name)}">
+          <span class="oc-pic">${artHtml(p.image || placeholderFor(p), p.category)}</span>
+          <span class="oc-cap"><b>${esc(LABEL[p.category] || p.category)}</b><small>from ${money(Math.min(...PRODUCTS.filter((x) => x.category === p.category).map((x) => x.price)))}</small></span>
+        </button>`).join("");
+
     f.innerHTML = `<div class="scene" id="scene">
-        <div class="orb"></div>
-        <div class="floor"></div>
-        <div class="art3d">${slices}</div>
-        <div class="float-chip chip-a"><b>${ICON_CLOCK}</b><div>Sun to Fri<small>10 AM – 6 PM</small></div></div>
-        <div class="float-chip chip-b"><b>${ICON_PIN}</b><div>Jorpati<small>Kathmandu, Nepal</small></div></div>
+        <div class="glow g1"></div><div class="glow g2"></div>
+        <div class="ring r1"></div><div class="ring r2"></div>
+        <div class="pedestal"></div>
+        <div class="hero-main">${artHtml(heroImg, hero.category)}</div>
+        ${tileHtml}
         <div class="feature-info">
           <span class="badge${hero.badge === "Sale" ? " sale" : ""}">${esc(hero.badge || "Featured")}</span>
           <h3>${esc(hero.name)}</h3>
@@ -91,7 +186,8 @@
           <button class="btn sm" type="button">View product</button>
         </div>
       </div>`;
-    f.querySelector("button").onclick = () => openQuick(hero);
+    f.querySelector(".feature-info button").onclick = () => openQuick(hero);
+    f.querySelectorAll(".orbit-card").forEach((b) => { b.onclick = () => openQuick(find(b.dataset.id)); });
   }
 
   // ---------- Smooth scrolling (eased, so header links glide instead of jump) ----------
@@ -162,7 +258,9 @@
     let items = PRODUCTS.filter((p) =>
       (state.category === "All" || p.category === state.category) &&
       (!state.brand || p.brand === state.brand) &&
+      (!state.deals || p.discount > 0) &&
       (!q || `${p.name} ${p.brand || ""} ${p.category} ${p.description}`.toLowerCase().includes(q)));
+    if (state.sort === "discount") items = [...items].sort((a, b) => (b.discount || 0) - (a.discount || 0));
     if (state.sort === "low") items = [...items].sort((a, b) => a.price - b.price);
     if (state.sort === "high") items = [...items].sort((a, b) => b.price - a.price);
     if (state.sort === "name") items = [...items].sort((a, b) => a.name.localeCompare(b.name));
@@ -180,11 +278,14 @@
   function mediaFor(p) {
     const m = el("div", { className: "media" });
     if (p.image) {
+      m.classList.add("photo");
       const img = el("img", { src: p.image, alt: p.name, loading: "lazy" });
       applyImgStyle(img, p);
       m.append(img);
-    }
-    else m.innerHTML = artFor(p.category);
+    } else if (placeholderFor(p)) {
+      m.classList.add("ph");
+      m.append(el("img", { src: placeholderFor(p), alt: "", loading: "lazy" }));
+    } else m.innerHTML = artFor(p.category);
     return m;
   }
 
@@ -197,8 +298,9 @@
   // Chips are built once so their state can transition; a pill slides behind the selected one.
   let chipInk = null;
   function moveChipInk() {
+    if (!chipInk) return;
     const sel = $("filters").querySelector('[aria-selected="true"]');
-    if (!chipInk || !sel) return;
+    if (!sel) return;
     chipInk.style.width = `${sel.offsetWidth}px`;
     chipInk.style.height = `${sel.offsetHeight}px`;
     chipInk.style.transform = `translate(${sel.offsetLeft}px, ${sel.offsetTop}px)`;
@@ -245,14 +347,37 @@
     const items = visible();
     $("result-count").textContent = `${items.length} ${items.length === 1 ? "item" : "items"}`;
     $("none").hidden = items.length > 0;
-    $("grid").replaceChildren(...items.map(cardFor));
+    $("grid").replaceChildren(...items.slice(0, state.limit).map(cardFor));
+    const left = items.length - state.limit;
+    $("more").hidden = left <= 0;
+    $("more").textContent = `Show more (${left.toLocaleString("en-IN")} left)`;
+    $("on-sale").checked = state.deals;
+    $("clear-filters").hidden = state.category === "All" && !state.brand && !state.query.trim() && !state.deals;
+    syncUrl();
+  }
+
+  function clearFilters() {
+    state.brand = ""; state.query = ""; state.deals = false; state.limit = PAGE;
+    $("brand").value = ""; $("search").value = "";
+    if (state.category !== "All") setCategory("All"); else swapGrid();
+  }
+
+  // Home page: best sellers first, then the rest of the catalogue.
+  // Home page: one product from each of the biggest categories, best deal first.
+  function renderHome() {
+    const picks = CATS.filter((c) => c !== "Other").slice(0, 8).map((c) => {
+      const pool = PRODUCTS.filter((p) => p.category === c);
+      return [...pool].sort((a, b) => (b.discount || 0) - (a.discount || 0)).find((p) => p.image || placeholderFor(p)) || pool[0];
+    }).filter(Boolean);
+    $("home-grid").replaceChildren(...picks.map(cardFor));
   }
 
   // "Discount now": every product with a discount, regardless of the filters below.
   function renderDeals() {
     const deals = PRODUCTS.filter((p) => p.discount).sort((a, b) => b.discount - a.discount);
+    const limit = Number($("deals").dataset.limit) || deals.length;
     $("deals").hidden = deals.length === 0;
-    $("deals-grid").replaceChildren(...deals.map(cardFor));
+    $("deals-grid").replaceChildren(...deals.slice(0, limit).map(cardFor));
   }
 
   // Grid swap. Cards that stay glide to their new place (FLIP), cards that leave
@@ -315,25 +440,44 @@
   function setCategory(c, { hold = false } = {}) {
     if (c === state.category) return;
     state.category = c;
+    state.limit = PAGE;
     renderFilters();
     swapPending = true;
     if (!hold) commitSwap();
   }
 
-  let searchTimer = 0;
-  $("search").addEventListener("input", (e) => {
-    state.query = e.target.value;
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(swapGrid, 140);
-  });
-  const BRANDS = [...new Set(PRODUCTS.map((p) => p.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-  $("brand").append(...BRANDS.map((b) => el("option", { value: b, textContent: b })));
-  $("brand").hidden = BRANDS.length === 0;
-  $("brand").addEventListener("change", (e) => { state.brand = e.target.value; swapGrid(); });
-  $("sort").addEventListener("change", (e) => { state.sort = e.target.value; swapGrid(); });
-  $("search-btn").onclick = () => scrollToEl($("shop"), () => $("search").focus({ preventScroll: true }));
+  if (IS_SHOP) {
+    let searchTimer = 0;
+    $("search").value = state.query;
+    $("search").addEventListener("input", (e) => {
+      state.query = e.target.value;
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => { state.limit = PAGE; swapGrid(); }, 140);
+    });
+    $("brand").append(...BRANDS.map((b) => el("option", { value: b, textContent: b })));
+    $("brand").hidden = BRANDS.length === 0;
+    $("brand").value = state.brand;
+    $("brand").addEventListener("change", (e) => { state.brand = e.target.value; state.limit = PAGE; swapGrid(); });
+    $("on-sale").addEventListener("change", (e) => { state.deals = e.target.checked; state.limit = PAGE; swapGrid(); });
+    $("more").onclick = () => { state.limit += PAGE; renderGrid(); };
+    $("sort").value = state.sort;
+    $("sort").addEventListener("change", (e) => { state.sort = e.target.value; state.limit = PAGE; swapGrid(); });
+    $("clear-filters").onclick = clearFilters;
+    $("none-clear").onclick = clearFilters;
+    $("search-btn").onclick = () => scrollToEl($("shop"), () => $("search").focus({ preventScroll: true }));
+    if (location.hash === "#search") requestAnimationFrame(() => $("search").focus());
+  } else {
+    $("search-btn").onclick = () => { location.href = "shop.html#search"; };
+  }
 
   // ---------- Quick view ----------
+  // One feature per line becomes a bullet list; a single line stays a paragraph.
+  function descEl(text) {
+    const lines = String(text || "").split("\n").map((l) => l.trim()).filter(Boolean);
+    if (lines.length < 2) return el("p", { className: "desc", textContent: lines[0] || "" });
+    return el("ul", { className: "desc desc-list" }, ...lines.map((l) => el("li", { textContent: l })));
+  }
+
   function openQuick(p) {
     let qty = 1;
     const dlg = $("quick");
@@ -361,7 +505,7 @@
         el("h3", { textContent: p.name }),
         p.brand ? el("div", { className: "brand", textContent: `Brand: ${p.brand}` }) : null,
         priceEl(p),
-        el("p", { className: "desc", textContent: p.description }),
+        descEl(p.description),
         specs,
         el("div", { className: "qv-actions" }, el("div", { className: "qty" }, minus, qtyEl, plus), add))));
     dlg.showModal();
@@ -388,7 +532,7 @@
 
   function thumbFor(p) {
     const t = el("div", { className: "thumb" });
-    if (p.image) t.append(el("img", { src: p.image, alt: "" }));
+    if (p.image || placeholderFor(p)) t.append(el("img", { src: p.image || placeholderFor(p), alt: "" }));
     else t.innerHTML = artFor(p.category);
     return t;
   }
@@ -416,13 +560,24 @@
     return node;
   }
 
+  // Browsers may never start an animation on a hidden element (the closed bag), which would leave
+  // the row stuck at its first keyframe: invisible. So only animate visible rows, and force any
+  // animation that hasn't finished in time to its end.
+  const settle = (a, ms, done) => setTimeout(() => {
+    if (a.playState === "finished") return;
+    try { a.finish(); } catch { a.cancel(); }
+    if (done) done();
+  }, ms);
   function enterLine(node, delay = 0) {
-    if (reduceMotion || !node.animate) return;
+    if (reduceMotion || !node.animate || !$("drawer").classList.contains("open")) return;
+    node.getAnimations().forEach((a) => a.cancel());
     const h = node.offsetHeight;
-    node.animate(
+    if (!h) return;
+    const a = node.animate(
       [{ height: "0px", opacity: 0, transform: "translateX(28px)", paddingTop: 0, paddingBottom: 0 },
        { height: `${h}px`, opacity: 1, transform: "none" }],
       { duration: 520, delay, easing: EASE_OUT, fill: "backwards" });
+    settle(a, delay + 900);
   }
   function leaveLine(node, delay = 0) {
     if (reduceMotion || !node.animate) { node.remove(); return; }
@@ -432,6 +587,7 @@
        { height: "0px", opacity: 0, transform: "translateX(-28px)", paddingTop: 0, paddingBottom: 0 }],
       { duration: 380, delay, easing: EASE_OUT, fill: "both" });
     a.onfinish = () => node.remove();
+    settle(a, delay + 800, () => node.remove());
   }
 
   // Count the subtotal up/down instead of snapping
@@ -466,18 +622,52 @@
       add);
   }
 
-  const COMPLEMENT = { "Printers": "Toner & Ink", "Toner & Ink": "Printers", "Cameras": "Computer Hardware", "Computer Hardware": "Cameras" };
+  // Installation kit: what else is needed to install what's in the bag, with suggested quantities.
+  function installSection(groups) {
+    const items = groups.flatMap((g) => g.items);
+    const kitTotal = items.reduce((s, i) => s + i.product.price * i.qty, 0);
+    const addAll = el("button", { className: "btn sm block kit-all", type: "button",
+      textContent: `Add everything · ${money(kitTotal)}` });
+    addAll.onclick = () => {
+      items.forEach((i) => addToCart(i.product.id, i.qty, { silent: true }));
+      toast(`Added ${items.length} installation item${items.length > 1 ? "s" : ""}`);
+    };
+    const row = (i) => {
+      const p = i.product;
+      const add = el("button", { className: "btn sm ghost", type: "button", textContent: "Add" });
+      add.onclick = () => { addToCart(p.id, i.qty, { silent: true }); toast(`${i.label} added`); };
+      const qty = i.unit ? `${i.qty} ${i.unit} × ${money(p.price)}` : i.qty > 1 ? `${i.qty} × ${money(p.price)}` : money(p.price);
+      return el("div", { className: "mini kit" },
+        thumbFor(p),
+        el("div", {},
+          el("div", { className: "kit-need", textContent: i.label }),
+          el("div", { className: "nm", textContent: p.name }),
+          el("div", { className: "why", textContent: i.why }),
+          el("div", { className: "pr", textContent: qty })),
+        add);
+    };
+    return [
+      el("h4", { textContent: "Complete your installation" }),
+      el("p", { className: "kit-sub", textContent: "Everything else you'll need, picked to fit what's in your bag. We'll double-check it before installing." }),
+      ...groups.flatMap((g) => [el("div", { className: "kit-group", textContent: g.title }), ...g.items.map(row)]),
+      addAll,
+    ];
+  }
+
+  const COMPLEMENT = { Laptops: "Peripherals", Desktops: "Monitors", Monitors: "Peripherals", Apple: "Accessories",
+    "CCTV & Security": "Storage", Cameras: "Storage", Networking: "Power & UPS", "PC Components": "Power & UPS", Peripherals: "Audio" };
+  const topDeals = () => [...PRODUCTS].filter((p) => p.discount).sort((a, b) => b.discount - a.discount);
   function suggestions(inCart) {
     const have = new Set(inCart.map((e) => e.p.id));
     const wanted = [...new Set(inCart.map((e) => COMPLEMENT[e.p.category]).filter(Boolean))];
     const pool = PRODUCTS.filter((p) => !have.has(p.id));
     const first = pool.filter((p) => wanted.includes(p.category));
-    const rest = pool.filter((p) => !wanted.includes(p.category) && p.badge === "Best seller");
+    const rest = topDeals().filter((p) => !have.has(p.id) && !wanted.includes(p.category));
     return [...first, ...rest].slice(0, 3);
   }
 
   function renderEmpty() {
-    const picks = PRODUCTS.filter((p) => p.badge === "Best seller").concat(PRODUCTS).filter((p, i, a) => a.indexOf(p) === i).slice(0, 3);
+    const picks = topDeals().slice(0, 3);
     const shopBtn = el("button", { className: "btn", type: "button", textContent: "Browse the shop" });
     shopBtn.onclick = () => { closeCart(); scrollToEl($("shop")); };
     const sg = el("section", { className: "suggest" }, el("h4", { textContent: "Popular right now" }), ...picks.map(miniRow));
@@ -523,11 +713,17 @@
       }
     });
 
-    // "You may also need"
-    const picks = list.length ? suggestions(list) : [];
+    // "Complete your installation" (install.js), else general "You may also need"
     const sg = $("suggest");
-    sg.hidden = picks.length === 0;
-    sg.replaceChildren(...(picks.length ? [el("h4", { textContent: "You may also need" }), ...picks.map(miniRow)] : []));
+    const kit = list.length && window.MansaInstall ? window.MansaInstall.plan(list, PRODUCTS) : [];
+    if (kit.length) {
+      sg.hidden = false;
+      sg.replaceChildren(...installSection(kit));
+    } else {
+      const picks = list.length ? suggestions(list) : [];
+      sg.hidden = picks.length === 0;
+      sg.replaceChildren(...(picks.length ? [el("h4", { textContent: "You may also need" }), ...picks.map(miniRow)] : []));
+    }
     if (!list.length) renderEmpty();
   }
 
@@ -687,9 +883,17 @@
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     if (!entries().length) return;
-    waUrl = `https://wa.me/${STORE.whatsapp}?text=${encodeURIComponent(orderMessage(new FormData(form)))}`;
+    const fd = new FormData(form);
+    waUrl = `https://wa.me/${STORE.whatsapp}?text=${encodeURIComponent(orderMessage(fd))}`;
     showStep(true);
     openWhatsApp();
+    // Also keep a copy of the order in Supabase (no-op on the local server).
+    window.MansaData.saveOrder({
+      name: fd.get("name"), phone: fd.get("phone"), method: fd.get("method"),
+      address: fd.get("method") === "pickup" ? "" : fd.get("address"), note: orderNote,
+      items: entries().map(({ p, qty }) => ({ id: p.id, name: p.name, qty, price: p.price })),
+      total: total(),
+    });
   });
   $("wa-again").onclick = openWhatsApp;
   $("co-done-btn").onclick = () => {
@@ -730,15 +934,21 @@
     start();
   })();
 
-  renderFilters();
-  renderGrid();
+  if (IS_SHOP) {
+    renderFilters();
+    renderGrid();
+  } else {
+    renderHome();
+  }
   renderDeals();
   renderCart();
   moveInk();
-  moveChipInk();
-  $("grid").classList.add("flip");
+  if (IS_SHOP) {
+    moveChipInk();
+    $("grid").classList.add("flip");
+  }
   requestAnimationFrame(() => requestAnimationFrame(() => {
     nav.classList.add("ready");
-    $("filters").classList.add("ready");
+    if (IS_SHOP) $("filters").classList.add("ready");
   }));
 })();

@@ -51,7 +51,7 @@ IMG_EXT = {".svg", ".png", ".jpg", ".jpeg", ".webp", ".gif"}
 
 def clean_url(v) -> str:
     v = str(v or "").strip()[:300]
-    if re.fullmatch(r"(images|uploads)/[\w.\- ]+", v) and ".." not in v:
+    if re.fullmatch(r"(images|uploads)(/[\w.\- ]+)+", v) and ".." not in v:  # incl. images/products/...
         return v
     return v if re.match(r"https?://[^\s]+$", v) else ""
 
@@ -66,10 +66,10 @@ def to_price(v, default=0):
 
 def clean_store(raw: dict) -> dict:
     products, seen = [], set()
-    for item in (raw.get("products") or [])[:500]:
+    for item in (raw.get("products") or [])[:20000]:
         if not isinstance(item, dict):
             continue
-        name = str(item.get("name", "")).strip()[:120]
+        name = str(item.get("name", "")).strip()[:300]
         if not name:
             continue
         pid = re.sub(r"[^a-z0-9_-]", "", str(item.get("id", "")).lower())[:40] or "p-" + secrets.token_hex(4)
@@ -82,10 +82,10 @@ def clean_store(raw: dict) -> dict:
             "category": str(item.get("category", "")).strip()[:40] or "Other",
             "brand": str(item.get("brand", "")).strip()[:40],
             "price": to_price(item.get("price")),
-            "description": str(item.get("description", "")).strip()[:400],
+            "description": str(item.get("description", "")).strip()[:1000],
         }
         try:
-            disc = round(float(item.get("discount") or 0), 1)
+            disc = round(float(item.get("discount") or 0), 6)
         except (TypeError, ValueError):
             disc = 0
         if 0 < disc < 100:
@@ -162,6 +162,7 @@ def clean_ad(raw: dict) -> dict:
     ad = {k: str(raw.get(k, ""))[:n].strip() for k, n in TEXT_LIMITS.items()}
     ad["enabled"] = bool(raw.get("enabled"))
     ad["theme"] = raw.get("theme") if raw.get("theme") in ("light", "dark") else "light"
+    ad["layout"] = "image" if raw.get("layout") == "image" else "card"
     ad["frequency"] = raw.get("frequency") if raw.get("frequency") in ("visit", "session", "day") else "session"
     for k in ("startDate", "endDate"):
         v = str(raw.get(k, ""))[:10]

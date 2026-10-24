@@ -1,14 +1,15 @@
 {
-  "enabled": true,
   "badge": "Welcome",
   "title": "Welcome to Mansa Technology",
   "text": "Computers, printers, CCTV, networking and more. Visit us in Jorpati or call +977 984-1834789.",
   "buttonLabel": "Shop now",
-  "buttonLink": "#shop",
-  "image": "",
+  "buttonLink": "shop.html",
+  "image": "uploads/img-08b013f2d393.jpg",
+  "enabled": true,
   "theme": "light",
+  "layout": "image",
   "frequency": "session",
   "startDate": "",
   "endDate": "",
-  "updatedAt": 2
+  "updatedAt": 1792832609
 }

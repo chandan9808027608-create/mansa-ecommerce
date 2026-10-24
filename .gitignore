@@ -1,3 +1,6 @@
 .DS_Store
 __pycache__/
 *.pyc
+store.backup-*.json
+*.missing
+tools/cache/
