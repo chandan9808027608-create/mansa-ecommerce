@@ -16706,7 +16706,8 @@ TRIM and S.M.A.R.T. Support | Supports storage maintenance and drive health moni
 
 insert into public.settings (key, value) values
   ('store', '{"featured": "p51806", "heroImage": ""}'::jsonb),
-  ('ad', '{"badge": "Welcome", "title": "Welcome to Mansa Technology", "text": "Computers, printers, CCTV, networking and more. Visit us in Jorpati or call +977 984-1834789.", "buttonLabel": "Shop now", "buttonLink": "shop.html", "image": "", "enabled": true, "theme": "light", "frequency": "session", "startDate": "", "endDate": "", "updatedAt": 1792831716}'::jsonb)
+  ('ad', '{"badge": "Welcome", "title": "Welcome to Mansa Technology", "text": "Computers, printers, CCTV, networking and more. Visit us in Jorpati or call +977 984-1834789.", "buttonLabel": "Shop now", "buttonLink": "shop.html", "image": "uploads/img-08b013f2d393.jpg", "enabled": true, "theme": "light", "layout": "image", "frequency": "session", "startDate": "", "endDate": "", "updatedAt": 1792832609}'::jsonb),
+  ('company', '{"name": "Mansa", "legalName": "Mansa Technology Pvt. Ltd.", "tagline": "IT solutions and service provider.", "phone": "+977 9803250775", "email": "info@mansa.test", "address": "Jorpati-Sundarijal Bus Station, Kathmandu 44600, Nepal", "area": "Jorpati Chowk", "hours": "Sunday to Friday, 10:00 AM to 6:00 PM", "closedDay": "Saturday", "facebook": "https://facebook.com/mansatech", "instagram": "", "whatsapp": "9779803250775", "schedule": {"days": [0, 1, 2, 3, 4, 5], "open": 10, "close": 18}, "updatedAt": 1792844231}'::jsonb)
 on conflict (key) do update set value = excluded.value, updated_at = now();
 
 commit;

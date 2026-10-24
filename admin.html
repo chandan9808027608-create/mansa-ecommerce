@@ -38,7 +38,7 @@
 
     label.f { display: block; font-size: 13px; font-weight: 500; margin-bottom: 14px; }
     label.f small { color: var(--muted); font-weight: 400; }
-    input[type=text], input[type=password], input[type=number], input[type=date], input[type=search], textarea, select.f {
+    input[type=text], input[type=password], input[type=number], input[type=date], input[type=search], input[type=email], input[type=url], input[type=tel], textarea, select.f {
       display: block; width: 100%; margin-top: 6px; border: 1px solid var(--line); border-radius: 12px;
       padding: 10px 12px; background: #fff; height: auto; font-size: 15px; color: var(--ink);
     }
@@ -99,6 +99,10 @@
     .dlg-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
     .preview-stage { background: rgba(0,0,0,.55); border-radius: 20px; padding: 40px 28px; }
     #ad-form.img-mode .txt { display: none; }
+    .co-h { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #0b3d91; margin: 22px 0 10px; }
+    .co-days { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .co-day { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; font-weight: 500; cursor: pointer; }
+    .co-day:has(input:checked) { border-color: #0b3d91; background: #eef3fc; }
     .preview-stage .ad-card { max-width: 720px; margin: 0 auto; grid-template-columns: 1fr; }
     .preview-stage .ad-visual { min-height: 260px; }
     .ad-layout { display: grid; grid-template-columns: 420px 1fr; gap: 24px; align-items: start; }
@@ -127,6 +131,7 @@
       <button data-tab="products" class="on">Products</button>
       <button data-tab="images">Site images</button>
       <button data-tab="ad">Ad popup</button>
+      <button data-tab="company">Company</button>
       <button data-tab="orders" id="orders-tab" hidden>Orders</button>
     </nav>
     <span><a href="./" target="_blank" rel="noopener">View store ↗</a><button class="linkbtn" id="logout" hidden>Sign out</button></span>
@@ -237,6 +242,46 @@
       </div>
     </section>
 
+    <!-- Company / contact details -->
+    <section id="tab-company" hidden>
+      <form class="box" id="co-form" style="max-width:760px">
+        <h2>Company details</h2>
+        <p class="sub">Shown in the header bar, footer, checkout and WhatsApp orders. Empty fields keep the current default.</p>
+        <h3 class="co-h">Company</h3>
+        <div class="two">
+          <label class="f">Short name <small>(used in WhatsApp orders)</small><input type="text" name="name" maxlength="40" placeholder="Mansa"></label>
+          <label class="f">Legal name<input type="text" name="legalName" maxlength="120" placeholder="Mansa Technology Pvt. Ltd."></label>
+        </div>
+        <label class="f">Tagline <small>(footer)</small><input type="text" name="tagline" maxlength="160" placeholder="IT solutions and service provider."></label>
+        <h3 class="co-h">Contact</h3>
+        <div class="two">
+          <label class="f">Phone<input type="text" name="phone" maxlength="40" placeholder="+977 984-1234567"></label>
+          <label class="f">WhatsApp number <small>(orders are sent here; digits incl. country code)</small><input type="text" name="whatsapp" maxlength="20" inputmode="numeric" placeholder="9779841234567"></label>
+        </div>
+        <label class="f">Email <small>(optional)</small><input type="email" name="email" maxlength="120" placeholder="info@example.com"></label>
+        <div class="two">
+          <label class="f">Facebook page <small>(optional)</small><input type="url" name="facebook" maxlength="300" placeholder="https://facebook.com/…"></label>
+          <label class="f">Instagram <small>(optional)</small><input type="url" name="instagram" maxlength="300" placeholder="https://instagram.com/…"></label>
+        </div>
+        <h3 class="co-h">Location</h3>
+        <label class="f">Address<input type="text" name="address" maxlength="200" placeholder="Street, city, postcode, country"></label>
+        <label class="f">Area <small>(for "Pick up in …" at checkout)</small><input type="text" name="area" maxlength="60" placeholder="Jorpati"></label>
+        <h3 class="co-h">Opening hours</h3>
+        <div class="two">
+          <label class="f">Hours <small>(text shown on the site)</small><input type="text" name="hours" maxlength="120" placeholder="Sunday to Friday, 10:00 AM to 6:00 PM"></label>
+          <label class="f">Closed on<input type="text" name="closedDay" maxlength="60" placeholder="Saturday"></label>
+        </div>
+        <div class="f" style="font-size:13px;font-weight:500">Open days <small style="color:var(--muted);font-weight:400">(for the "Open now / Closed now" dot, Nepal time)</small>
+          <div class="co-days" id="co-days"></div>
+        </div>
+        <div class="two">
+          <label class="f">Opens at<select class="f" name="open" id="co-open"></select></label>
+          <label class="f">Closes at<select class="f" name="close" id="co-close"></select></label>
+        </div>
+        <button class="btn" type="submit" id="co-save">Save company details</button><span class="status" id="co-status" role="status"></span>
+      </form>
+    </section>
+
     <!-- Orders (Supabase only) -->
     <section id="tab-orders" hidden>
       <div class="box">
@@ -319,6 +364,7 @@
   <script>window.MANSA_ADMIN = true;</script>
   <script src="config.js"></script>
   <script src="data.js"></script>
+  <script src="products.js"></script>
   <script src="ad.js"></script>
   <script>
   (() => {
@@ -375,11 +421,12 @@
     }
 
     async function boot() {
-      const [s, a] = await Promise.all([DB.loadStore(), DB.loadAd().catch(() => ({}))]);
+      const [s, a, co] = await Promise.all([DB.loadStore(), DB.loadAd().catch(() => ({})), DB.loadCompany().catch(() => ({}))]);
+      company = co || {};
       store = { featured: Array.isArray(s.featured) ? s.featured : (s.featured ? [s.featured] : []), heroImage: s.heroImage || "", products: s.products || [] };
       ad = a || {};
       media = await guard(() => DB.listMedia());  // also confirms the session is still valid
-      renderProducts(); renderHero(); fillAd();
+      renderProducts(); renderHero(); fillAd(); fillCompany();
       show(true);
     }
 
@@ -396,7 +443,7 @@
 
     document.querySelectorAll("#tabs button").forEach((b) => b.addEventListener("click", () => {
       document.querySelectorAll("#tabs button").forEach((x) => x.classList.toggle("on", x === b));
-      ["products", "images", "ad", "orders"].forEach((t) => { $(`tab-${t}`).hidden = t !== b.dataset.tab; });
+      ["products", "images", "ad", "company", "orders"].forEach((t) => { $(`tab-${t}`).hidden = t !== b.dataset.tab; });
       if (b.dataset.tab === "images") renderLibrary();
       if (b.dataset.tab === "orders") loadOrders();
     }));
@@ -725,6 +772,39 @@
         $("ad-status").textContent = "Saved. Live on the store now."; $("ad-status").className = "status ok";
       } catch (err) { $("ad-status").textContent = err.message; $("ad-status").className = "status err"; }
       $("ad-save").disabled = false;
+    });
+
+    // ---------- company details ----------
+    let company = {};
+    const coForm = $("co-form");
+    const CO_TEXT = ["name", "legalName", "tagline", "phone", "whatsapp", "email", "facebook", "instagram", "address", "area", "hours", "closedDay"];
+    const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const hourLabel = (h) => (h === 0 || h === 24 ? "12:00 AM" : h === 12 ? "12:00 PM" : h < 12 ? `${h}:00 AM` : `${h - 12}:00 PM`);
+    $("co-days").replaceChildren(...DAYS.map((d, i) => el("label", { className: "co-day" }, el("input", { type: "checkbox", value: String(i) }), d)));
+    $("co-open").replaceChildren(...Array.from({ length: 24 }, (_, h) => el("option", { value: String(h), textContent: hourLabel(h) })));
+    $("co-close").replaceChildren(...Array.from({ length: 24 }, (_, h) => el("option", { value: String(h + 1), textContent: hourLabel(h + 1) })));
+    function fillCompany() {
+      const d = window.STORE || {};  // products.js defaults fill anything not yet saved
+      CO_TEXT.forEach((k) => { coForm.elements[k].value = company[k] || d[k] || ""; });
+      const sch = (company.schedule && company.schedule.days && company.schedule.days.length) ? company.schedule : (d.schedule || { days: [], open: 10, close: 18 });
+      $("co-days").querySelectorAll("input").forEach((c) => { c.checked = sch.days.includes(Number(c.value)); });
+      $("co-open").value = String(sch.open); $("co-close").value = String(sch.close);
+    }
+    coForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const out = {};
+      CO_TEXT.forEach((k) => { out[k] = coForm.elements[k].value.trim(); });
+      out.schedule = { days: [...$("co-days").querySelectorAll("input:checked")].map((c) => Number(c.value)),
+        open: Number($("co-open").value), close: Number($("co-close").value) };
+      if (!out.whatsapp.replace(/\D/g, "")) { $("co-status").textContent = "A WhatsApp number is needed: orders are sent to it."; $("co-status").className = "status err"; return; }
+      if (out.schedule.close <= out.schedule.open) { $("co-status").textContent = "Closing time must be after opening time."; $("co-status").className = "status err"; return; }
+      $("co-save").disabled = true;
+      try {
+        company = await guard(() => DB.saveCompany(out));
+        fillCompany();
+        $("co-status").textContent = "Saved. Live on the store now."; $("co-status").className = "status ok";
+      } catch (err) { $("co-status").textContent = err.message; $("co-status").className = "status err"; }
+      $("co-save").disabled = false;
     });
 
     // ---------- orders ----------

@@ -54,10 +54,10 @@ create policy "admins manage products" on public.products for all to authenticat
   using (public.is_admin()) with check (public.is_admin());
 
 -- ---------------------------------------------------------------------------
--- Settings: key/value documents. 'store' = { featured, heroImage }, 'ad' = popup ad.
+-- Settings: key/value documents. 'store' = { featured, heroImage }, 'ad' = popup ad, 'company' = contact details.
 -- ---------------------------------------------------------------------------
 create table if not exists public.settings (
-  key        text primary key check (key in ('store', 'ad')),
+  key        text primary key check (key in ('store', 'ad', 'company')),
   value      jsonb not null default '{}' check (jsonb_typeof(value) = 'object' and pg_column_size(value) < 20000),
   updated_at timestamptz not null default now()
 );
@@ -163,3 +163,7 @@ create policy "admins update media" on storage.objects for update to authenticat
 drop policy if exists "admins delete media" on storage.objects;
 create policy "admins delete media" on storage.objects for delete to authenticated
   using (bucket_id = 'media' and public.is_admin());
+
+-- If you created the tables before the 'company' setting existed, this lets it be saved:
+alter table public.settings drop constraint if exists settings_key_check;
+alter table public.settings add constraint settings_key_check check (key in ('store', 'ad', 'company'));

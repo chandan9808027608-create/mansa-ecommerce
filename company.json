@@ -1,0 +1,27 @@
+{
+  "name": "Mansa",
+  "legalName": "Mansa Technology Pvt. Ltd.",
+  "tagline": "IT solutions and service provider.",
+  "phone": "+977 9803250775",
+  "email": "info@mansa.test",
+  "address": "Jorpati-Sundarijal Bus Station, Kathmandu 44600, Nepal",
+  "area": "Jorpati Chowk",
+  "hours": "Sunday to Friday, 10:00 AM to 6:00 PM",
+  "closedDay": "Saturday",
+  "facebook": "https://facebook.com/mansatech",
+  "instagram": "",
+  "whatsapp": "9779803250775",
+  "schedule": {
+    "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "open": 10,
+    "close": 18
+  },
+  "updatedAt": 1792844231
+}

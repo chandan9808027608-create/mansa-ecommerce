@@ -45,6 +45,24 @@
     return out;
   }
 
+  function cleanCompany(a) {
+    const s = a.schedule || {};
+    const days = [...new Set((s.days || []).map(Number).filter((d) => d >= 0 && d <= 6))].sort();
+    const open = Math.max(0, Math.min(23, int(s.open, 10)));
+    let close = Math.max(1, Math.min(24, int(s.close, 18)));
+    if (close <= open) close = Math.min(24, open + 1);
+    const link = (v) => { const x = str(v, 300); return /^https?:\/\//i.test(x) ? x : ""; };
+    const email = str(a.email, 120);
+    return {
+      name: str(a.name, 40), legalName: str(a.legalName, 120), tagline: str(a.tagline, 160),
+      phone: str(a.phone, 40), whatsapp: String(a.whatsapp || "").replace(/\D/g, "").slice(0, 15),
+      email: /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) ? email : "",
+      address: str(a.address, 200), area: str(a.area, 60), hours: str(a.hours, 120), closedDay: str(a.closedDay, 60),
+      facebook: link(a.facebook), instagram: link(a.instagram),
+      schedule: { days, open, close }, updatedAt: Math.floor(Date.now() / 1000),
+    };
+  }
+
   function cleanAd(a) {
     const date = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(String(v || "")) ? String(v) : "");
     return {
@@ -139,6 +157,22 @@
       ]);
       const v = (set && set.value) || {};
       return { featured: featuredList(v.featured), heroImage: v.heroImage || "", products: rows.map(fromRow) };
+    },
+
+    // Company / contact details (edited in admin → Company). Empty object = use products.js defaults.
+    async loadCompany() {
+      if (!USE_SB) return getJson("company.json");
+      const c = await sb();
+      const row = must(await c.from("settings").select("value").eq("key", "company").maybeSingle());
+      return (row && row.value) || {};
+    },
+
+    async saveCompany(co) {
+      if (!USE_SB) return call("/api/company", co);
+      const clean = cleanCompany(co);
+      const c = await sb();
+      must(await c.from("settings").upsert({ key: "company", value: clean }));
+      return clean;
     },
 
     async loadAd() {

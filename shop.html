@@ -87,7 +87,7 @@
     <div class="wrap foot-grid">
       <div>
         <a class="logo" href="index.html" aria-label="Mansa Technology home"><img src="images/logo.png" alt="Mansa Technology" width="700" height="303"></a>
-        <p>Mansa Technology Pvt. Ltd.<br>IT solutions and service provider.</p>
+        <p><span id="foot-legal">Mansa Technology Pvt. Ltd.</span><span id="foot-tagline">IT solutions and service provider.</span></p>
       </div>
       <div><h4>Shop</h4>
         <a href="#shop" data-cat="Laptops">Laptops</a>
@@ -105,6 +105,8 @@
       <div><h4>Contact</h4>
         <a id="phone" href="#"></a>
         <a id="wa-link" href="#" target="_blank" rel="noopener">Chat on WhatsApp</a>
+        <a id="email-link" href="#" hidden></a>
+        <div class="socials" id="socials" hidden></div>
       </div>
     </div>
     <div class="wrap legal" id="legal"></div>
@@ -153,7 +155,7 @@
         <h2>Your details</h2>
         <div class="seg" role="radiogroup" aria-label="Delivery method">
           <label><input type="radio" name="method" value="delivery" checked><span>Delivery</span></label>
-          <label><input type="radio" name="method" value="pickup"><span>Pick up in Jorpati</span></label>
+          <label><input type="radio" name="method" value="pickup"><span id="pickup-label">Pick up in Jorpati</span></label>
         </div>
         <label class="fld">Full name <input name="name" required autocomplete="name"></label>
         <label class="fld">Phone <input name="phone" type="tel" required autocomplete="tel"></label>

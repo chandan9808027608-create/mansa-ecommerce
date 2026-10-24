@@ -23,6 +23,7 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parent
 AD_FILE = ROOT / "ad.json"
 STORE_FILE = ROOT / "store.json"
+COMPANY_FILE = ROOT / "company.json"
 IMAGES = ROOT / "images"
 UPLOADS = ROOT / "uploads"
 HOST = os.environ.get("HOST", "127.0.0.1")
@@ -164,6 +165,30 @@ def sniff_image(data: bytes):
     return None
 
 
+COMPANY_TEXT = {"name": 40, "legalName": 120, "tagline": 160, "phone": 40, "email": 120, "address": 200,
+                "area": 60, "hours": 120, "closedDay": 60, "facebook": 300, "instagram": 300}
+
+
+def clean_company(raw: dict) -> dict:
+    co = {k: str(raw.get(k, "")).strip()[:n] for k, n in COMPANY_TEXT.items()}
+    co["whatsapp"] = re.sub(r"\D", "", str(raw.get("whatsapp", "")))[:15]
+    if co["email"] and not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", co["email"]):
+        co["email"] = ""
+    for k in ("facebook", "instagram"):
+        if co[k] and not re.match(r"https?://", co[k]):
+            co[k] = ""
+    sch = raw.get("schedule") if isinstance(raw.get("schedule"), dict) else {}
+    days = sorted({int(d) for d in (sch.get("days") or []) if str(d).isdigit() and 0 <= int(d) <= 6})
+    try:
+        o, c = int(sch.get("open", 10)), int(sch.get("close", 18))
+    except (TypeError, ValueError):
+        o, c = 10, 18
+    o, c = max(0, min(23, o)), max(1, min(24, c))
+    co["schedule"] = {"days": days, "open": o, "close": c if c > o else min(24, o + 1)}
+    co["updatedAt"] = int(time.time())
+    return co
+
+
 def clean_ad(raw: dict) -> dict:
     ad = {k: str(raw.get(k, ""))[:n].strip() for k, n in TEXT_LIMITS.items()}
     ad["enabled"] = bool(raw.get("enabled"))
@@ -250,6 +275,11 @@ class Handler(SimpleHTTPRequestHandler):
 
         if not self._authed():
             return self._json(401, {"error": "Please sign in again"})
+
+        if route == "/api/company":
+            co = clean_company(data)
+            write_json(COMPANY_FILE, co)
+            return self._json(200, co)
 
         if route == "/api/ad":
             ad = clean_ad(data)

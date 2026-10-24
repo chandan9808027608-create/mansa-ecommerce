@@ -2,7 +2,15 @@
   const { STORE } = window;
   // The catalogue comes from Supabase, or store.json on the local server (see data.js).
   let data = {};
-  try { data = await window.MansaData.loadStore(); } catch (e) { console.warn("Could not load products:", e.message); }
+  let company = {};
+  [data, company] = await Promise.all([
+    window.MansaData.loadStore().catch((e) => { console.warn("Could not load products:", e.message); return {}; }),
+    window.MansaData.loadCompany().catch(() => ({})),
+  ]);
+  // Company details from admin override the defaults in products.js (empty fields keep the default).
+  for (const [k, v] of Object.entries(company || {})) {
+    if (k === "schedule" ? v && Array.isArray(v.days) && v.days.length : v !== "" && v != null) STORE[k] = v;
+  }
   // A product's `price` is its regular price; `discount` (percent) lowers it. After this,
   // `price` is what the customer pays and `was` the struck-through regular price.
   const PRODUCTS = (Array.isArray(data.products) ? data.products : []).map((p) => {
@@ -131,12 +139,21 @@
   addEventListener("scroll", onScroll, { passive: true });
   onScroll();
   $("legal").textContent = `© ${new Date().getFullYear()} ${STORE.legalName}`;
+  if ($("foot-legal")) $("foot-legal").textContent = STORE.legalName;
+  if ($("foot-tagline")) $("foot-tagline").textContent = STORE.tagline || "";
+  if ($("pickup-label")) $("pickup-label").textContent = `Pick up in ${STORE.area || "store"}`;
+  if ($("email-link")) { $("email-link").hidden = !STORE.email; if (STORE.email) { $("email-link").href = `mailto:${STORE.email}`; $("email-link").textContent = STORE.email; } }
+  if ($("socials")) {
+    const links = [["facebook", "Facebook"], ["instagram", "Instagram"]].filter(([k]) => STORE[k]);
+    $("socials").hidden = !links.length;
+    $("socials").replaceChildren(...links.map(([k, label]) => el("a", { href: STORE[k], target: "_blank", rel: "noopener", textContent: `${label} ↗` })));
+  }
   $("wa-link").href = `https://wa.me/${STORE.whatsapp}`;
   $("phone").href = `tel:${STORE.phone.replace(/[^+\d]/g, "")}`;
   $("phone").textContent = STORE.phone;
   $("address").textContent = STORE.address;
   $("hours").textContent = `${STORE.hours} (closed ${STORE.closedDay})`;
-  $("directions").href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Mansa Technology " + STORE.address)}`;
+  $("directions").href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${STORE.legalName || STORE.name} ${STORE.address}`)}`;
 
   // Open / closed indicator, evaluated in Nepal time
   function isOpenNow() {
