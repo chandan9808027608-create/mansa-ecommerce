@@ -740,3 +740,6 @@ dialog.ad.ad-img { width: fit-content; max-width: min(900px, 92vw); }
 @keyframes slideIn { from { opacity: 0; transform: translateX(14px); } }
 @media (max-width: 760px) { .fi-dots { grid-column: 2; margin-top: 8px; } }
 .feature-info h3 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Scrolling inside popups stays inside them */
+dialog, .drawer-body { overscroll-behavior: contain; }

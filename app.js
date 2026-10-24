@@ -399,6 +399,8 @@
     if (pages > 1) $("result-count").textContent = `${(start + 1).toLocaleString("en-IN")}–${Math.min(start + PAGE, items.length).toLocaleString("en-IN")} of ${items.length.toLocaleString("en-IN")}`;
     renderPager(pages);
     $("on-sale").checked = state.deals;
+    // "Discount now" belongs to the general view; hide it while a category is chosen.
+    $("deals").hidden = state.category !== "All" || !PRODUCTS.some((p) => p.discount);
     $("clear-filters").hidden = state.category === "All" && !state.brand && !state.query.trim() && !state.deals;
     syncUrl();
   }
@@ -516,6 +518,7 @@
     if (c === state.category) return;
     state.category = c;
     state.page = 1;
+    if ($("deals")) $("deals").hidden = c !== "All" || !PRODUCTS.some((p) => p.discount);
     renderFilters();
     swapPending = true;
     if (!hold) commitSwap();
@@ -582,9 +585,19 @@
         descEl(p.description),
         specs,
         el("div", { className: "qv-actions" }, el("div", { className: "qty" }, minus, qtyEl, plus), add))));
-    dlg.showModal();
+    if (!dlg.open) {
+      try { dlg.showModal(); } catch { return; }  // e.g. another popup is still open
+      quickLocked = true;
+      lockScroll();
+    }
   }
   $("quick").addEventListener("click", (e) => { if (e.target === e.currentTarget) e.currentTarget.close(); });
+  // Release the page when the popup closes, however it closes (×, backdrop, Esc, Add to bag).
+  // Watching the "open" attribute is more dependable than the close event alone.
+  let quickLocked = false;
+  const releaseQuick = () => { if (quickLocked && !$("quick").open) { quickLocked = false; unlockScroll(); } };
+  $("quick").addEventListener("close", releaseQuick);
+  new MutationObserver(releaseQuick).observe($("quick"), { attributes: true, attributeFilter: ["open"] });
 
   // ---------- Bag ----------
   const EASE_OUT = "cubic-bezier(.22, 1, .36, 1)";
@@ -805,8 +818,22 @@
     if (!list.length) renderEmpty();
   }
 
+  // Freeze the page behind popups and the bag, so scrolling them never scrolls the site.
+  let lockCount = 0, lockY = 0;
+  function lockScroll() {
+    if (lockCount++) return;
+    lockY = scrollY;
+    Object.assign(document.body.style, { position: "fixed", top: `-${lockY}px`, left: "0", right: "0", width: "100%" });
+  }
+  function unlockScroll() {
+    if (!lockCount || --lockCount) return;
+    Object.assign(document.body.style, { position: "", top: "", left: "", right: "", width: "" });
+    scrollTo({ top: lockY, behavior: "instant" });
+  }
+
   let lastFocus = null;
   function openCart() {
+    if (!$("drawer").classList.contains("open")) lockScroll();
     lastFocus = document.activeElement;
     document.documentElement.classList.add("bag-open");
     $("drawer").classList.add("open");
@@ -817,6 +844,7 @@
     setTimeout(() => $("close-cart").focus({ preventScroll: true }), 50);
   }
   function closeCart() {
+    if ($("drawer").classList.contains("open")) unlockScroll();
     document.documentElement.classList.remove("bag-open");
     $("drawer").classList.remove("open");
     $("drawer").setAttribute("aria-hidden", "true");
