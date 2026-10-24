@@ -12,7 +12,7 @@
   <style>
     body { background: var(--soft); min-height: 100vh; }
     [hidden] { display: none !important; }
-    /* Top bar in the logo's colours: blue #0b3d91, orange #ff4000 */
+    /* Top bar in the logo's colours: blue #0b3d91, orange #b3132f */
     .bar { background: #fff; color: #0b3d91; position: sticky; top: 0; z-index: 20; border-bottom: 1px solid #e9e7e2; box-shadow: 0 6px 20px rgba(11, 61, 145, .06); }
     .bar .wrap { height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     .bar strong { font-size: 18px; letter-spacing: -0.03em; }
@@ -20,10 +20,10 @@
     .bar .brand img { height: 36px; width: auto; }
     .tabs { display: flex; gap: 4px; }
     .tabs button { background: none; border: 0; color: #0b3d91; font-size: 14px; font-weight: 600; padding: 9px 16px; border-radius: 999px; cursor: pointer; transition: all .2s; }
-    .tabs button:hover { color: #ff4000; }
+    .tabs button:hover { color: #b3132f; }
     .tabs button.on { background: #0b3d91; color: #fff; }
     .bar a, .bar .linkbtn { color: #0b3d91; font-size: 14px; margin-left: 16px; background: none; border: 0; cursor: pointer; }
-    .bar a:hover, .bar .linkbtn:hover { color: #ff4000; }
+    .bar a:hover, .bar .linkbtn:hover { color: #b3132f; }
 
     .login { max-width: 380px; margin: 96px auto; background: #fff; border-radius: 20px; padding: 32px; box-shadow: 0 20px 60px rgba(0,0,0,.08); }
     .login h1 { font-size: 24px; letter-spacing: -0.03em; margin-bottom: 6px; }
@@ -49,10 +49,10 @@
     .switch { display: flex; align-items: center; gap: 10px; font-weight: 600; margin-bottom: 18px; }
     .switch input { width: 20px; height: 20px; accent-color: #0b3d91; }
     .btn.sm { padding: 9px 16px; font-size: 14px; }
-    .btn.danger { background: #fff; color: #b91c1c; border-color: #f0c4c4; }
+    .btn.danger { background: #fff; color: #b3132f; border-color: #efc2cb; }
     .status { font-size: 14px; margin-left: 12px; }
-    .status.ok { color: #15803d; } .status.err { color: #b91c1c; }
-    .err-text { color: #b91c1c; font-size: 14px; min-height: 20px; margin-top: 10px; }
+    .status.ok { color: #15803d; } .status.err { color: #b3132f; }
+    .err-text { color: #b3132f; font-size: 14px; min-height: 20px; margin-top: 10px; }
 
     /* products */
     .toolbar { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -66,7 +66,7 @@
     .row .nm small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; }
     .row .pr s { color: var(--muted); font-size: 13px; margin-left: 6px; }
     .tag { display: inline-block; font-size: 12px; font-weight: 600; background: var(--soft); border-radius: 999px; padding: 3px 10px; }
-    .tag.sale { background: #fde7dc; color: var(--sale); }
+    .tag.sale { background: #fbe5e9; color: var(--sale); }
     .acts { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
     .ib { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: #fff; cursor: pointer; font-size: 16px; line-height: 1; display: grid; place-items: center; transition: all .15s; }
     .ib:hover { border-color: var(--brand-blue); }
@@ -83,7 +83,7 @@
     .tile .cap span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .tile .use { position: absolute; top: 8px; left: 8px; background: #0b3d91; color: #fff; font-size: 11px; font-weight: 600; border-radius: 999px; padding: 2px 8px; }
     .tile .del { position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; border-radius: 50%; border: 0; background: rgba(255,255,255,.92); cursor: pointer; font-size: 15px; }
-    .tile .del:hover { background: #fde7e7; color: #b91c1c; }
+    .tile .del:hover { background: #fde7e7; color: #b3132f; }
     .picker .tile { cursor: pointer; transition: transform .15s, border-color .15s; }
     .picker .tile:hover { transform: translateY(-2px); border-color: var(--brand-blue); }
 
